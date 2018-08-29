@@ -21,7 +21,6 @@ if(isset($_GET['test']) && $_GET['test'] == "snapshot"){
     socket_close($sock);
 
     echo "<span class=\"hint\">Message sent: $msg </span>";
-    echo LBWeb::logfile_button_html(['LOGFILE' => "$lbplogdir/synology.log" ]);
 }
 else {
     echo "<span class=\"hint\">No message sent: $msg </span>";
