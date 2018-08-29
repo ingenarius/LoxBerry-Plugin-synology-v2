@@ -1,0 +1,8 @@
+#/bin/sh 
+
+apt-get -y purge python-requests python-configparser python-socks python-pip
+apt-get -y autoremove
+
+# Exit with Status 0
+exit 0
+
