@@ -259,7 +259,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 <div class="divTableRow">
                     <div class="divTableCell"><input type="submit" id="do" value="<?=$L['TEXT.SAVE']?>" data-mini="true"></div>
                     <div class="divTableCell"><span class="hint"><?=$L['HELP.REBOOT']?></span></div>
-                    <div class="divTableCell"><? LBWeb::logfile_button_html(['LOGFILE' => "$lbplogdir/synology.log" ]); ?></div>
+                    <div class="divTableCell"><? echo LBWeb::logfile_button_html(['LOGFILE' => "$lbplogdir/synology.log" ]); ?></div>
                 </div>
             </div>
         </div>
