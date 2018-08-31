@@ -41,7 +41,7 @@ PDATA=$LBPDATA/$PDIR
 PLOG=$LBPLOG/$PDIR # Note! This is stored on a Ramdisk now!
 PCONFIG=$LBPCONFIG/$PDIR
 PSBIN=$LBPSBIN/$PDIR
-PBIN=$LBPBIN/$PDIR
+PBIN = REPLACELBPBINDIR
 
 echo "<INFO> Command is: $COMMAND"
 echo "<INFO> Temporary folder is: $TEMPDIR"
@@ -57,8 +57,11 @@ echo "<INFO> Plugin CONFIG folder is: $PCONFIG"
 echo "<INFO> Plugin SBIN folder is: $PSBIN"
 echo "<INFO> Plugin BIN folder is: $PBIN"
 
-echo "<INFO> start syno_plugin"
+echo "<INFO> start syno_plugin..."
 $LBHOMEDIR/system/daemons/plugins/$PSHNAME start
+
+echo "<INFO> get cam IDs..."
+python $PBIN/cameras.py &
 
 # Exit with Status 0
 exit 0
