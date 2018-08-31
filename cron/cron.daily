@@ -17,7 +17,7 @@ BINDIR=REPLACELBPBINDIR
 ############################
 $LBHOMEDIR/system/daemons/plugins/$PDIR restart
 
-python $BIN/cameras.py &
+python $BINDIR/cameras.py &
 
 exit 0
 
