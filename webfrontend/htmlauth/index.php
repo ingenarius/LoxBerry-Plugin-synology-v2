@@ -62,10 +62,8 @@ if ($_POST){
 	$cfg->save();
 	// Restart Daemon
     pclose(popen("$lbhomedir/system/daemons/plugins/$lbpplugindir restart", 'r'));
-    pclose(popen("python $lbpbindir/cameras.py", 'r'));
-	//exec("$lbhomedir/system/daemons/plugins/$lbpplugindir restart");
-    // Marks Loxberry's "reboot required"
-	//reboot_required($L['TEXT.REBOOT']);
+    // Get cameras
+	pclose(popen("python $lbpbindir/cameras.py", 'r'));
 } 
 else {
 	// Get values from config file
@@ -229,6 +227,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                     <div class="divTableCell"><?=$L['TEXT.TBOTTOKEN']?></div>
                     <div class="divTableCell"><input type="text" name="tbot_token" id="tbot_token" value="<?=$tbot_token?>"></div>
                     <div class="divTableCell"><span class="hint">
+                        <a href="#" onClick="$.ajax({url: '<?=$tbot_testurl?>', type: 'GET', data: { 'tbot':'test'} }).success(function(data) { $( '#tbot_test' ).html(data).trigger('create'); }) ;">Test</a>
                         <a href="<?=$tbot_testurl?>" target="_blank">Test Telegram API</a></span><div id="tbot_test"></div>
                     </div>
                 </div>
