@@ -25,9 +25,8 @@ if(isset($_GET['test']) && $_GET['test'] == "snapshot"){
     socket_sendto($sock, $msg, $len, 0, '127.0.0.1', $srv_port);
     socket_close($sock);
 
-    echo "<span class=\"hint\">".$L['TEXT.MSG_SENT'].": ".$msg ."<br>$L['TEXT.CHECK_LOG']</span>";
+    echo "<span class=\"hint\">".$L['TEXT.MSG_SENT'].": ".$msg."<br>".$L['TEXT.CHECK_LOG']."</span>";
 }
 else {
-    echo "<span class=\"hint\">$L['TEXT.TXT_NONE'] $L['TEXT.MSG_SENT']: $msg <br>$L['TEXT.CHECK_LOG']</span>";
-    //echo "<span class=\"hint\">No message sent: $msg </span>";
+    echo "<span class=\"hint\">".$L['TEXT.TXT_NONE'].$L['TEXT.MSG_SENT'].": ".$msg."<br>".$L['TEXT.CHECK_LOG']."</span>";
 }

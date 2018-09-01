@@ -61,9 +61,11 @@ if ($_POST){
 	else { $cfg->set("EMAIL","PWD",$email_stored_pwd); }
 	$cfg->save();
 	// Restart Daemon
+    pclose(popen("$lbhomedir/system/daemons/plugins/$lbpplugindir restart", 'r'));
+    pclose(popen("python $lbpbindir/cameras.py", 'r'));
 	//exec("$lbhomedir/system/daemons/plugins/$lbpplugindir restart");
     // Marks Loxberry's "reboot required"
-	reboot_required($L['TEXT.REBOOT']);
+	//reboot_required($L['TEXT.REBOOT']);
 } 
 else {
 	// Get values from config file
@@ -180,7 +182,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                     <div class="divTableCell">
 					<?php if (file_exists("/tmp/syno_plugin.lock")) { echo "<span style=\"color:green\">".$L['TEXT.RUNNING']."</span>"; } else { echo "<span style=\"color:red\">".$L['TEXT.NOT_RUNNING']."</span>"; } ?>
 					</div>
-                    <div class="divTableCell"><a href="#" onClick="$.ajax({url: 'test_server.php?test=snapshot', type: 'GET', data: { 'test':'snapshot'} }).success(function(data) { $( '#test_server' ).html(data).trigger('create'); }) ;">Test Server</a><div id="test_server"></div></div>
+                    <div class="divTableCell"><span class="hint"><a href="#" onClick="$.ajax({url: 'test_server.php?test=snapshot', type: 'GET', data: { 'test':'snapshot'} }).success(function(data) { $( '#test_server' ).html(data).trigger('create'); }) ;">Test Server</a></span><div id="test_server"></div></div>
                 </div>
                 <div class="divTableRow">
                     <div class="divTableCell"><h3><?=$L['TEXT.DS'].' '.$L['TEXT.SETTINGS']?></h3></div>
@@ -208,7 +210,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 <div class="divTableRow">
                     <div class="divTableCell"><?=$L['TEXT.DSCAMS']?></div>
                     <div class="divTableCell"><input type="text" name="ds_cids" id="ds_cids" value="<?=$ds_cids?>"></div>
-                    <div class="divTableCell"><span class="hint"><?=$L['HELP.DSCAMS'].":<br>".$cams?></span></div>
+                    <div class="divTableCell"><span class="hint"><a href="#" onClick="$.ajax({url: 'ajax_cams.php', type: 'GET', data: { 'get':'cams'} }).success(function(data) { $( '#installed_cams' ).html(data).trigger('create'); }) ;"><?=$L['TEXT.INSTALLED_CAMS']?></a></span><div id="installed_cams"></div></div>
                 </div>
                 <div class="divTableRow">
                     <div class="divTableCell"><?=$L['TEXT.DSEMAIL']?></div>
@@ -226,7 +228,10 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 <div class="divTableRow" id="tbot_2">
                     <div class="divTableCell"><?=$L['TEXT.TBOTTOKEN']?></div>
                     <div class="divTableCell"><input type="text" name="tbot_token" id="tbot_token" value="<?=$tbot_token?>"></div>
-                    <div class="divTableCell"><span class="hint"><a href="<?=$tbot_testurl?>" target="_blank">Test</a></span></div>
+                    <div class="divTableCell"><span class="hint">
+                        <a href="#" onClick="$.ajax({url: '<?=$tbot_testurl?>', type: 'GET', data: { 'tbot':'test'} }).success(function(data) { $( '#tbot_test' ).html(data).trigger('create'); }) ;">Test</a>
+                        <a href="<?=$tbot_testurl?>" target="_blank">Test Telegram API</a></span><div id="tbot_test"></div>
+                    </div>
                 </div>
                 <div class="divTableRow" id="tbot_3">
                     <div class="divTableCell"><?=$L['TEXT.TBOTCHAT']?></div>
@@ -259,7 +264,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 <div class="divTableRow">
                     <div class="divTableCell"><input type="submit" id="do" value="<?=$L['TEXT.SAVE']?>" data-mini="true"></div>
                     <div class="divTableCell"><span class="hint"><?=$L['HELP.REBOOT']?></span></div>
-                    <div class="divTableCell"><?php echo LBWeb::logfile_button_html(['LOGFILE' => "$lbplogdir/synology.log" ]); ?></div>
+                    <div class="divTableCell"><a id="btnlogs" data-role="button" href="/admin/system/tools/logfile.cgi?logfile=plugins/synology/synology.log&header=html&format=template" target="_blank" data-inline="true" data-mini="true" data-icon="action"><?=$L['TEXT.LOGFILE']?></a></div>
                 </div>
             </div>
         </div>
