@@ -72,9 +72,10 @@ cp -v -r $PLOG/ /tmp/uploads/$PTEMPDIR\_upgrade/log
 echo "<INFO> kill existing syno_plugin.py process..."
 $LBHOMEDIR/system/daemons/plugins/$PSHNAME stop
 
-echo "<INFO> update \"python-telegram-bot\"..."
-pip install --user pip --upgrade
-pip install --user python-telegram-bot --upgrade
+# install telegram library for python
+echo "<INFO> installing \"python-telegram-bot\"..."
+python -m pip install --user pip --upgrade
+python -m pip install --user python-telegram-bot --upgrade
 
 # Exit with Status 0
 exit 0

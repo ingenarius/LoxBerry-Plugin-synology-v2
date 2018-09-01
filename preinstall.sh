@@ -55,5 +55,10 @@ echo "<INFO> Plugin Data folder is: $PDATA"
 echo "<INFO> Plugin Log folder (on RAMDISK!) is: $PLOG"
 echo "<INFO> Plugin CONFIG folder is: $PCONFIG"
 
+# install telegram library for python
+echo "<INFO> installing \"python-telegram-bot\"..."
+python -m pip install --user pip --upgrade
+python -m pip install --user python-telegram-bot --upgrade
+
 # Exit with Status 0
 exit 0
