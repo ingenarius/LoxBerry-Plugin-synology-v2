@@ -20,6 +20,7 @@ if ($_POST){
 	$ds_host = $_POST['ds_host'];
 	$ds_port = $_POST['ds_port'];
 	$ds_cids = $_POST['ds_cids'];
+	if(empty($ds_cids)) { ds_cids = "-1:NONE"; } else { $N = count($ds_cids); for($i=0; $i < $N; $i++) { $ds_cids = $ds_cids.",".$i; }
 	$ds_mail = $_POST['ds_mail'];
 	$ds_sentvia = $_POST['sent_via'];
 	if ($ds_sentvia == 1) {
@@ -94,28 +95,26 @@ else {
 	}	
 }
 
-if(isset($_GET['test']) && $_GET['test'] == "snapshot"){
-    $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-    
-    if (strpos($ds_cids, ",") == false) {
-        $msg = "Snapshot:$ds_cids";
-    } else {
-        $cams = explode(",", $ds_cams);
-        $msg = "Snapshot:$cams[0]";
-    }
-    $len = strlen($msg);
-
-    socket_sendto($sock, $msg, $len, 0, '127.0.0.1', $srv_port);
-    socket_close($sock);
-}
-
 //Get camera data
-$myfile = fopen("$lbpdatadir/cameras.dat", "r") or die("Unable to open file!");
-$data = fread($myfile,filesize("$lbpdatadir/cameras.dat"));
-fclose($myfile);
-$order   = array("\r\n", "\n", "\r");
-$replace = '<br />';
-$cams = str_replace($order, $replace, $data);
+//$myfile = fopen("$lbpdatadir/cameras.dat", "r") or die("Unable to open file!");
+//$data = fread($myfile,filesize("$lbpdatadir/cameras.dat"));
+//fclose($myfile);
+//$order = array("\r\n", "\n", "\r");
+//$replace = '<br />';
+//$cams = str_replace($order, $replace, $data);
+
+$cameras = array();
+$camstring = "";
+$cameras = file("$lbpdatadir/cameras.dat", FILE_IGNORE_NEW_LINES) or die("Unable to open <i>cameras.dat</i>!");
+foreach($cameras as $cam) {
+	list($cid, $cmodel) = explode(':', $cam);
+	foreach($ds_cids as ds_cid) {
+		if ($ds_cid == $cid) {
+			$camstring = $camstring."<div><input type=\"checkbox\" name=\"ds_cids[]\" value=\"$cid\" checked>$cmodel</div>";
+		}
+	$camstring = $camstring."<div><input type=\"checkbox\" name=\"ds_cids[]\" value=\"$cid\">$cmodel</div>";
+}	
+
 
 //Sent via Dropdown Box
 $choices = array(0 => $L['TEXT.TXT_NONE'], 1 => "Telegram Bot", 2 => "Email");
@@ -180,7 +179,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                     <div class="divTableCell">
 					<?php if (file_exists("/tmp/syno_plugin.lock")) { echo "<span style=\"color:green\">".$L['TEXT.RUNNING']."</span>"; } else { echo "<span style=\"color:red\">".$L['TEXT.NOT_RUNNING']."</span>"; } ?>
 					</div>
-                    <div class="divTableCell"><span class="hint"><a href="#" onClick="$.ajax({url: 'test_server.php?test=snapshot', type: 'GET', data: { 'test':'snapshot'} }).success(function(data) { $( '#test_server' ).html(data).trigger('create'); }) ;">Test Server</a></span><div id="test_server"></div></div>
+                    <div class="divTableCell"><span class="hint"><a href="#" onClick="$.ajax({url: 'ajax_test.php?test=snapshot', type: 'GET', data: { 'test':'snapshot'} }).success(function(data) { $( '#test_server' ).html(data).trigger('create'); }) ;">Test Server</a></span><div id="test_server"></div></div>
                 </div>
                 <div class="divTableRow">
                     <div class="divTableCell"><h3><?=$L['TEXT.DS'].' '.$L['TEXT.SETTINGS']?></h3></div>
@@ -207,7 +206,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 </div>
                 <div class="divTableRow">
                     <div class="divTableCell"><?=$L['TEXT.DSCAMS']?></div>
-                    <div class="divTableCell"><input type="text" name="ds_cids" id="ds_cids" value="<?=$ds_cids?>"></div>
+                    <div class="divTableCell"><?=$camstring?></div>
                     <div class="divTableCell"><span class="hint"><a href="#" onClick="$.ajax({url: 'ajax_cams.php', type: 'GET', data: { 'get':'cams'} }).success(function(data) { $( '#installed_cams' ).html(data).trigger('create'); }) ;"><?=$L['TEXT.INSTALLED_CAMS']?></a></span><div id="installed_cams"></div></div>
                 </div>
                 <div class="divTableRow">
@@ -271,7 +270,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
 <script>
 $('#main_form').validate();
 
-//$.ajax({url: 'test_server.php?test=snapshot', type: 'GET', data: { 'test':'snapshot'} }).success(function(data) { $( '#test_server' ).html(data).trigger('create'); }) ;
+//$.ajax({url: 'ajax_test.php?test=snapshot', type: 'GET', data: { 'test':'snapshot'} }).success(function(data) { $( '#test_server' ).html(data).trigger('create'); }) ;
 
 $(function() {
     // show / hide block for telegram configuration parts
