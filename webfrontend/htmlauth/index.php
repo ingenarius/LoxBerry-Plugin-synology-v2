@@ -20,7 +20,15 @@ if ($_POST){
 	$ds_host = $_POST['ds_host'];
 	$ds_port = $_POST['ds_port'];
 	$ds_cids = $_POST['ds_cids'];
-	if(empty($ds_cids)) { ds_cids = "-1:NONE"; } else { $N = count($ds_cids); for($i=0; $i < $N; $i++) { $ds_cids = $ds_cids.",".$i; }
+	if(empty($ds_cids)) { 
+        ds_cids = "-1"; 
+    }
+    else {
+        $N = count($ds_cids); 
+        for($i=0; $i < $N; $i++) { 
+            $ds_cids = $ds_cids.",".$i; 
+        }
+    }
 	$ds_mail = $_POST['ds_mail'];
 	$ds_sentvia = $_POST['sent_via'];
 	if ($ds_sentvia == 1) {
@@ -95,26 +103,18 @@ else {
 	}	
 }
 
-//Get camera data
-//$myfile = fopen("$lbpdatadir/cameras.dat", "r") or die("Unable to open file!");
-//$data = fread($myfile,filesize("$lbpdatadir/cameras.dat"));
-//fclose($myfile);
-//$order = array("\r\n", "\n", "\r");
-//$replace = '<br />';
-//$cams = str_replace($order, $replace, $data);
-
+// List (sorted by ID) installed cameras with checkboxes to enable/disable them
 $cameras = array();
-$camstring = "";
-$cameras = file("$lbpdatadir/cameras.dat", FILE_IGNORE_NEW_LINES) or die("Unable to open <i>cameras.dat</i>!");
-foreach($cameras as $cam) {
-	list($cid, $cmodel) = explode(':', $cam);
-	foreach($ds_cids as ds_cid) {
-		if ($ds_cid == $cid) {
-			$camstring = $camstring."<div><input type=\"checkbox\" name=\"ds_cids[]\" value=\"$cid\" checked>$cmodel</div>";
-		}
-	$camstring = $camstring."<div><input type=\"checkbox\" name=\"ds_cids[]\" value=\"$cid\">$cmodel</div>";
-}	
-
+$camstring = "<input type=\"checkbox\" name=\"ds_cids[]\" value=\"0\">NO CAM - NO MODEL</div>";
+// $cameras = file("$lbpdatadir/cameras.dat", FILE_IGNORE_NEW_LINES) or die("Unable to open <i>cameras.dat</i>!");
+// foreach($cameras as $cam) {
+	// list($cid, $cmodel) = explode(':', $cam);
+	// foreach($ds_cids as ds_cid) {
+		// if ($ds_cid == $cid) {
+			// $camstring = $camstring."<div><input type=\"checkbox\" name=\"ds_cids[]\" value=\"$cid\" checked>$cmodel</div>";
+		// }
+	// $camstring = $camstring."<div><input type=\"checkbox\" name=\"ds_cids[]\" value=\"$cid\">$cmodel</div>";
+// }	
 
 //Sent via Dropdown Box
 $choices = array(0 => $L['TEXT.TXT_NONE'], 1 => "Telegram Bot", 2 => "Email");
@@ -206,7 +206,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 </div>
                 <div class="divTableRow">
                     <div class="divTableCell"><?=$L['TEXT.DSCAMS']?></div>
-                    <div class="divTableCell"><?=$camstring?></div>
+                    <div class="divTableCell"></div>
                     <div class="divTableCell"><span class="hint"><a href="#" onClick="$.ajax({url: 'ajax_cams.php', type: 'GET', data: { 'get':'cams'} }).success(function(data) { $( '#installed_cams' ).html(data).trigger('create'); }) ;"><?=$L['TEXT.INSTALLED_CAMS']?></a></span><div id="installed_cams"></div></div>
                 </div>
                 <div class="divTableRow">

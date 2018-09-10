@@ -5,5 +5,3 @@ python-requests
 python-configparser
 python-socks
 python-pip
-libstring-escape-perl
-libjson-perl

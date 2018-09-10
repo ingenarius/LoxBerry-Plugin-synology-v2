@@ -1,10 +1,11 @@
-#!/usr/bin/python
-
 import os
 import time
 import urllib
-import telegram
 from ConfigParser import ConfigParser
+try:
+	import telegram
+except:
+	return False
 
 class MyTelegramBot(object):
     def __init__(self):
