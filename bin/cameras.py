@@ -47,7 +47,7 @@ def main():
                 c_id = str(c.get('id'))
                 c_vendor = str(c.get('vendor'))
                 c_model = str(c.get('model'))
-                cam_file.write(c_id + ": " + c_vendor + " - " + c_model)
+                cam_file.write(c_id + ":" + c_vendor + " - " + c_model)
         cam_file.close()
     else:
         quit()
