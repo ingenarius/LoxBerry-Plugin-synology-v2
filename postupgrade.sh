@@ -43,7 +43,7 @@ PDATA=$LBPDATA/$PDIR
 PLOG=$LBPLOG/$PDIR # Note! This is stored on a Ramdisk now!
 PCONFIG=$LBPCONFIG/$PDIR
 PSBIN=$LBPSBIN/$PDIR
-PBIN=REPLACELBPBINDIR
+PBIN=$LBPBIN/$PDIR
 
 echo "<INFO> Command is: $COMMAND"
 echo "<INFO> Temporary folder is: $TEMPDIR"
@@ -63,6 +63,11 @@ echo "<INFO> Copy back existing log files..."
 cp -v -r /tmp/uploads/$PTEMPDIR\_upgrade/log/$PDIR/* $PLOG/
 echo "<INFO> Remove temporary folders..."
 rm -r /tmp/uploads/$PTEMPDIR\_upgrade
+
+# install telegram library for python
+echo "<INFO> installing \"python-telegram-bot\"..."
+python -m pip install --user pip --upgrade
+python -m pip install --user python-telegram-bot --upgrade
 
 echo "<INFO> start syno_plugin..."
 $LBHOMEDIR/system/daemons/plugins/$PDIR start

@@ -41,7 +41,7 @@ PDATA=$LBPDATA/$PDIR
 PLOG=$LBPLOG/$PDIR # Note! This is stored on a Ramdisk now!
 PCONFIG=$LBPCONFIG/$PDIR
 PSBIN=$LBPSBIN/$PDIR
-PBIN=REPLACELBPBINDIR
+PBIN=$LBPBIN/$PDIR
 
 echo "<INFO> Command is: $COMMAND"
 echo "<INFO> Temporary folder is: $TEMPDIR"
@@ -56,6 +56,11 @@ echo "<INFO> Plugin Log folder (on RAMDISK!) is: $PLOG"
 echo "<INFO> Plugin CONFIG folder is: $PCONFIG"
 echo "<INFO> Plugin SBIN folder is: $PSBIN"
 echo "<INFO> Plugin BIN folder is: $PBIN"
+
+# install telegram library for python
+echo "<INFO> installing \"python-telegram-bot\"..."
+python -m pip install --user pip --upgrade
+python -m pip install --user python-telegram-bot --upgrade
 
 echo "<INFO> start syno_plugin..."
 $LBHOMEDIR/system/daemons/plugins/$PSHNAME start
