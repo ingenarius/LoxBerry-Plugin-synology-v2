@@ -4,13 +4,12 @@ import logging
 import urllib
 import smtplib
 import base64
-from tbot import MyTelegramBot
 from mail import Email
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 from email.MIMEImage import MIMEImage
 from subprocess import call,STDOUT
-
+	
 class DiskStation(object):
     def __init__(self, ds_user, ds_pwd, ds_ip, ds_port, email):
         """Creates an object for a Synology DiskStation using the official Web API v2.0.
@@ -18,7 +17,7 @@ class DiskStation(object):
         #     Synology DISK STATION
         #######################################################
         # create object for DiskStation functions
-        # change data according to your setup in proxy.py
+        # change data according to your setup in syno_proxy.py
         #######################################################
         """
         self.user = ds_user         # user to manage DiskStation
@@ -30,17 +29,20 @@ class DiskStation(object):
             self.passwd = base64.b64decode(ds_pwd)        # password
             logging.basicConfig(filename=self.lbplog,level=logging.INFO,format='%(asctime)s: %(message)s ')
         except:
-            logging.info("<ERROR> password decoding not possible!")
             logging.basicConfig(filename=self.lbplog,level=logging.DEBUG,format='%(asctime)s: %(message)s ')
+            logging.info("<ERROR> password decoding not possible!")
             self.passwd = ""
+        try:
+            from tbot import MyTelegramBot
+        except ImportError:
+            logging.info("<ERROR> Importing telegram module was not possible!")
+            return
         self.ip = ds_ip             # IP of the DiskStation
         self.port = ds_port         # TCP Port to connect to the DiskStation
         self.mail = email           # email for notifications / snapshots
         self.api_url = "http://%s:%s/webapi/" % (self.ip, self.port)
         self.auth_url = "http://%s:%s/webapi/auth.cgi?" % (self.ip, self.port)
         
-
-
     def Alive(self):
         """Check if Diskstation is alive on the network. Return 'True' or 'False' """
         try:
