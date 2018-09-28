@@ -11,22 +11,27 @@ $helptemplate = "#";
 LBWeb::lbheader($template_title, $helplink, $helptemplate);
 
 if ($_POST){
-	echo "<h1> POST AREA </h1>";
 	// Get values from form
 	$srv_port = $_POST['srv_port'];
 	$ds_user = $_POST['ds_user'];
 	$ds_pwd = $_POST['ds_pwd'];
-	$ds_stored_pwd = $_POST['ds_stored_pwd'];
+    $ds_stored_pwd = $_POST['ds_stored_pwd'];
 	$ds_host = $_POST['ds_host'];
 	$ds_port = $_POST['ds_port'];
 	$ds_cids = $_POST['ds_cids'];
-	if(empty($ds_cids)) { 
-        ds_cids = "-1"; 
+    if(empty($ds_cids)) { 
+        $cids = "0"; 
     }
-    else {
+	else {
         $N = count($ds_cids); 
+        $cids = "";
         for($i=0; $i < $N; $i++) { 
-            $ds_cids = $ds_cids.",".$i; 
+            if ($i == 0) {
+                $cids = $cids.$ds_cids[$i]; 
+            } 
+            else {
+                $cids = $cids.",".$ds_cids[$i];
+            }
         }
     }
 	$ds_mail = $_POST['ds_mail'];
@@ -53,11 +58,11 @@ if ($_POST){
 	$cfg->set("SERVER","PORT",$srv_port);
 	$cfg->set("SERVER","INITIAL","0");
 	$cfg->set("DISKSTATION","USER",$ds_user);
-	if ($ds_pwd && $ds_pwd != "") { $cfg->set("DISKSTATION","PWD",base64_encode($ds_pwd)); }
+	if ($ds_pwd && $ds_pwd != "") { $enc_pwd = base64_encode($ds_pwd); $cfg->set("DISKSTATION","PWD",$enc_pwd); }
 	else { $cfg->set("DISKSTATION","PWD",$ds_stored_pwd); }
 	$cfg->set("DISKSTATION","HOST",$ds_host);
 	$cfg->set("DISKSTATION","PORT",$ds_port);
-	$cfg->set("DISKSTATION","CIDS",$ds_cids);
+	$cfg->set("DISKSTATION","CIDS",$cids);
 	$cfg->set("DISKSTATION","NOTIFICATION",$ds_mail);
 	$cfg->set("DISKSTATION","SENT_VIA",$ds_sentvia);
 	$cfg->set("TELEGRAM","TOKEN",$tbot_token);
@@ -80,10 +85,10 @@ else {
 	$srv_port = $cfg['SERVER']['PORT'];
 	$srv_init = $cfg['SERVER']['INITIAL'];
 	$ds_user = $cfg['DISKSTATION']['USER'];
-	$ds_pwd = $cfg['DISKSTATION']['PWD'];
+	$ds_stored_pwd = $cfg['DISKSTATION']['PWD'];
 	$ds_host = $cfg['DISKSTATION']['HOST'];
 	$ds_port = $cfg['DISKSTATION']['PORT'];
-	$ds_cids = $cfg['DISKSTATION']['CIDS'];
+	$ds_cids = explode(",", $cfg['DISKSTATION']['CIDS']);
 	$ds_mail = $cfg['DISKSTATION']['NOTIFICATION'];
 	$ds_sentvia = $cfg['DISKSTATION']['SENT_VIA'];
 	if ($ds_sentvia == 1) {
@@ -103,33 +108,6 @@ else {
 	}	
 }
 
-// List (sorted by ID) installed cameras with checkboxes to enable/disable them
-$cameras = array();
-$camstring = "<input type=\"checkbox\" name=\"ds_cids[]\" value=\"0\">NO CAM - NO MODEL</div>";
-// $cameras = file("$lbpdatadir/cameras.dat", FILE_IGNORE_NEW_LINES) or die("Unable to open <i>cameras.dat</i>!");
-// foreach($cameras as $cam) {
-	// list($cid, $cmodel) = explode(':', $cam);
-	// foreach($ds_cids as ds_cid) {
-		// if ($ds_cid == $cid) {
-			// $camstring = $camstring."<div><input type=\"checkbox\" name=\"ds_cids[]\" value=\"$cid\" checked>$cmodel</div>";
-		// }
-	// $camstring = $camstring."<div><input type=\"checkbox\" name=\"ds_cids[]\" value=\"$cid\">$cmodel</div>";
-// }	
-
-//Sent via Dropdown Box
-$choices = array(0 => $L['TEXT.TXT_NONE'], 1 => "Telegram Bot", 2 => "Email");
-$options = "";
-foreach($choices as $code => $name) {
-	if ($code == $ds_sentvia) {
-		$options .= "<option selected value=\"$code\">$name</option>\n";
-	}
-	else {
-  		$options .= "<option value=\"$code\">$name</option>\n";
-	}
-}
-$select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options</select>";
-
- 
 // This is the main area for your plugin
 ?>
 <style>
@@ -157,12 +135,43 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
 <h2><?=$L['TEXT.GREETING']?></h2>
 
 <?php
-// debug section
-//echo "<p>$cams</p>";
+// List (sorted by ID) installed cameras with checkboxes to enable/disable them
+$cameras = array();
+$camstring = "";
+$cameras = file("$lbpdatadir/cameras.dat", FILE_IGNORE_NEW_LINES) or die("Unable to open <i>cameras.dat</i>!");
+//print_r($cameras); echo "<br>"; 
+//print_r($cids); echo "<br>"; 
+//print_r($ds_cids); echo "<br>"; 
+foreach($cameras as $cam) {
+    list($cid, $cmodel) = explode(':', $cam); // cid => cam id; model => description
+    //echo "cmodel: ".$cmodel."<br>";
+	if ( in_array( $cid, $ds_cids, true ) ) {
+        //echo "yes!<br>";
+	    $camstring = $camstring."<input type=\"checkbox\" id=\"ds_cids_".$cid."\" name=\"ds_cids[]\" value=\"$cid\" class=\"custom\" data-mini=\"true\" data-cacheval=\"true\" checked=\"checked\"><label for=\"ds_cids_".$cid."\">$cmodel</label>";
+	}
+    else {
+        //echo "no!<br>";
+        $camstring = $camstring."<input type=\"checkbox\" id=\"ds_cids_".$cid."\" name=\"ds_cids[]\" value=\"$cid\" class=\"custom\" data-mini=\"true\" data-cacheval=\"false\"><label for=\"ds_cids_".$cid."\">$cmodel</label>";
+    }
+}	
+
+//Sent via Dropdown Box
+$choices = array(0 => $L['TEXT.TXT_NONE'], 1 => "Telegram Bot", 2 => "Email");
+$options = "";
+foreach($choices as $code => $name) {
+	if ($code == $ds_sentvia) {
+		$options .= "<option selected value=\"$code\">$name</option>\n";
+	}
+	else {
+  		$options .= "<option value=\"$code\">$name</option>\n";
+	}
+}
+$select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options</select>";
+
 ?>
 
 <form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.php">
-    <input type="hidden" name="ds_stored_pwd" id="ds_stored_pwd" value="<?=$ds_pwd?>">
+    <input type="hidden" name="ds_stored_pwd" id="ds_stored_pwd" value="<?=$ds_stored_pwd?>">
     <input type="hidden" name="email_stored_pwd" id="email_stored_pwd" value="<?=$email_pwd?>">
         <div class="divTable">
             <div class="divTableBody">
@@ -177,7 +186,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 <div class="divTableRow">
                     <div class="divTableCell">Status</div>
                     <div class="divTableCell">
-					<?php if (file_exists("/tmp/syno_plugin.lock")) { echo "<span style=\"color:green\">".$L['TEXT.RUNNING']."</span>"; } else { echo "<span style=\"color:red\">".$L['TEXT.NOT_RUNNING']."</span>"; } ?>
+					<?php if (file_exists("/tmp/syno_plugin.lock")) { $pid = file_get_contents('/tmp/syno_plugin.lock'); echo "<span style=\"color:green\">".$L['TEXT.RUNNING']." (process ID: $pid)</span>"; } else { echo "<span style=\"color:red\">".$L['TEXT.NOT_RUNNING']."</span>"; } ?>
 					</div>
                     <div class="divTableCell"><span class="hint"><a href="#" onClick="$.ajax({url: 'ajax_test.php?test=snapshot', type: 'GET', data: { 'test':'snapshot'} }).success(function(data) { $( '#test_server' ).html(data).trigger('create'); }) ;">Test Server</a></span><div id="test_server"></div></div>
                 </div>
@@ -206,7 +215,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 </div>
                 <div class="divTableRow">
                     <div class="divTableCell"><?=$L['TEXT.DSCAMS']?></div>
-                    <div class="divTableCell"></div>
+                    <div class="divTableCell"><fieldset data-role="control-group"><?=$camstring?></fieldset></div>
                     <div class="divTableCell"><span class="hint"><a href="#" onClick="$.ajax({url: 'ajax_cams.php', type: 'GET', data: { 'get':'cams'} }).success(function(data) { $( '#installed_cams' ).html(data).trigger('create'); }) ;"><?=$L['TEXT.INSTALLED_CAMS']?></a></span><div id="installed_cams"></div></div>
                 </div>
                 <div class="divTableRow">
@@ -240,7 +249,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 </div>
                 <div class="divTableRow" id="email_2">
                     <div class="divTableCell"><?=$L['TEXT.EMAILSRV']?> *</div>
-                    <div class="divTableCell"><input type="text" name="email_srv" id="email_srv" value="<?=$email_srv?>" data-validation-rule="special:hostname_or_ipaddr"></div>
+                    <div class="divTableCell"><input type="text" name="email_srv" id="email_srv" value="<?=$email_srv?>"></div>
                     <div class="divTableCell"><span class="hint"><?=$L['HELP.EMAILSRV']?></span></div>
                 </div>
                 <div class="divTableRow" id="email_3">
@@ -259,8 +268,8 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                     <div class="divTableCell">&nbsp;</div>
                 </div>
                 <div class="divTableRow">
+                    <div class="divTableCell">&nbsp;</div>
                     <div class="divTableCell"><input type="submit" id="do" value="<?=$L['TEXT.SAVE']?>" data-mini="true"></div>
-                    <div class="divTableCell"><span class="hint"><?=$L['HELP.REBOOT']?></span></div>
                     <div class="divTableCell"><a id="btnlogs" data-role="button" href="/admin/system/tools/logfile.cgi?logfile=plugins/synology/synology.log&header=html&format=template" target="_blank" data-inline="true" data-mini="true" data-icon="action"><?=$L['TEXT.LOGFILE']?></a></div>
                 </div>
             </div>
@@ -269,8 +278,6 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
 
 <script>
 $('#main_form').validate();
-
-//$.ajax({url: 'ajax_test.php?test=snapshot', type: 'GET', data: { 'test':'snapshot'} }).success(function(data) { $( '#test_server' ).html(data).trigger('create'); }) ;
 
 $(function() {
     // show / hide block for telegram configuration parts
@@ -308,7 +315,6 @@ $( document ).ready(function()
     validate_enable('#ds_mail');
     validate_enable('#ds_host');
     validate_enable('#ds_port');
-    validate_enable('#email_srv');
     validate_enable('#email_port');
     //validate_chk_object(['#srv_port','#ds_mail','#ds_host','#ds_port','#email_srv','#email_port']);
 });

@@ -14,7 +14,7 @@ if (strpos($ds_cids, ",") == false) {
     $msg = "Snapshot:$ds_cids";
 } else {
     //if there are more cam IDs -> take the first one
-    $cams = explode(",", $ds_cams);
+    $cams = explode(",", $ds_cids);
     $msg = "Snapshot:$cams[0]";
 }
 
