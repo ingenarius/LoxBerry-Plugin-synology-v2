@@ -2,10 +2,6 @@ import os
 import time
 import urllib
 from ConfigParser import ConfigParser
-try:
-	import telegram
-except:
-	return False
 
 class MyTelegramBot(object):
     def __init__(self):
@@ -18,13 +14,17 @@ class MyTelegramBot(object):
         #######################################################
         """
         # create file strings from os environment variables
-        lbpconfig = os.environ['LBPCONFIG'] + "/REPLACELBPPLUGINDIR/plugin.cfg"
+        lbpconfig = os.environ['LBPCONFIG'] + "/synology/plugin.cfg"
         # create config object to the the telegram bot details
         cfg = ConfigParser()
         cfg.read(lbpconfig)
         self.token = cfg.get("TELEGRAM", "TOKEN")
         self.chat_id = cfg.get("TELEGRAM", "CHAT_ID")
-        self.bot = telegram.Bot(self.token)
+        try:
+	    import telegram
+            self.bot = telegram.Bot(self.token)
+        except:
+	    return False
         
     def get_me(self):
         """get information about the telegram bot"""

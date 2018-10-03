@@ -10,19 +10,19 @@ import os
 def main():
     """get a list of all installed cameras"""
     # create file strings from os environment variables
-    lbplog = os.environ['LBPLOG'] + "/REPLACELBPPLUGINDIR/synology.log"
-    lbpconfig = os.environ['LBPCONFIG'] + "/REPLACELBPPLUGINDIR/plugin.cfg"
-    lbpdata = os.environ['LBPDATA'] + "/REPLACELBPPLUGINDIR/cameras.dat"
+    lbplog = os.environ['LBPLOG'] + "/synology/synology.log"
+    lbpconfig = os.environ['LBPCONFIG'] + "/synology/plugin.cfg"
+    lbpdata = os.environ['LBPDATA'] + "/synology/cameras.dat"
 
     # creating log file and set log format
     logging.basicConfig(filename=lbplog,level=logging.INFO,format='%(asctime)s: %(message)s ')
-    logging.info("<INFO> initialise logging...")
+    logging.info("<INFO> camera.py: init...")
     # open config file and read options
     try:
         cfg = ConfigParser()
         cfg.read(lbpconfig)
     except ConfigParser.ParsingError, err:
-        msg = "Error parsing config file: %s" % str(err)
+        msg = "<ERROR> Error parsing config file: %s" % str(err)
         logging.info(msg)
         quit()
         

@@ -15,8 +15,8 @@ def main():
         MotionDetectionOn:	enable motion detection for all cameras
         MotionDetectionOff:	disable motion detection for all cameras"""
     # create file strings from os environment variables
-    lbplog = os.environ['LBPLOG'] + "/REPLACELBPPLUGINDIR/synology.log"
-    lbpconfig = os.environ['LBPCONFIG'] + "/REPLACELBPPLUGINDIR/plugin.cfg"
+    lbplog = os.environ['LBPLOG'] + "/synology/synology.log"
+    lbpconfig = os.environ['LBPCONFIG'] + "/synology/plugin.cfg"
     lbsconfig = os.environ['LBSCONFIG'] + "/general.cfg"
 
     # creating log file and set log format
@@ -73,7 +73,7 @@ def main():
                 logging.info("<ERROR> %s not executed" % data)
             continue
         
-        if (addr[0] == MINISERVER or addr[0] == "127.0.0.1"):     # only the miniserver is allowed to send commands
+        if (addr[0] == MINISERVER or addr[0] == "127.0.0.1"):     # only the miniserver and loxberry are allowed to send commands
             # create DS object and login
             ds = DiskStation(DS_USER, DS_PWD, DS_HOST, DS_PORT, EMAIL)
             s = ds.Login()

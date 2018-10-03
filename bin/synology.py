@@ -22,21 +22,22 @@ class DiskStation(object):
         """
         self.user = ds_user         # user to manage DiskStation
         # create file strings from os environment variables
-        self.lbplog = os.environ['LBPLOG'] + "/REPLACELBPPLUGINDIR/synology.log"
-        self.lbpconfig = os.environ['LBPCONFIG'] + "/REPLACELBPPLUGINDIR/plugin.cfg"
-        self.lbpsnapshot = os.environ['LBPDATA'] + "/REPLACELBPPLUGINDIR/snapshot.jpg"
+        self.lbplog = os.environ['LBPLOG'] + "/synology/synology.log"
+        self.lbpconfig = os.environ['LBPCONFIG'] + "/synology/plugin.cfg"
+        self.lbpsnapshot = os.environ['LBPDATA'] + "/synology/snapshot.jpg"
+        logging.basicConfig(filename=self.lbplog,level=logging.INFO,format='%(asctime)s: %(message)s ')
         try:
             self.passwd = base64.b64decode(ds_pwd)        # password
-            logging.basicConfig(filename=self.lbplog,level=logging.INFO,format='%(asctime)s: %(message)s ')
+            logging.info("<INFO> password decoding OK!")
         except:
-            logging.basicConfig(filename=self.lbplog,level=logging.DEBUG,format='%(asctime)s: %(message)s ')
             logging.info("<ERROR> password decoding not possible!")
             self.passwd = ""
+            return False
         try:
             from tbot import MyTelegramBot
         except ImportError:
             logging.info("<ERROR> Importing telegram module was not possible!")
-            return
+            return False
         self.ip = ds_ip             # IP of the DiskStation
         self.port = ds_port         # TCP Port to connect to the DiskStation
         self.mail = email           # email for notifications / snapshots
@@ -73,6 +74,7 @@ class DiskStation(object):
         """login to Diskstation and return 'True' or 'False' """
         try:
             login_url = self.auth_url + 'api=SYNO.API.Auth&method=Login&version=2&account=%s&passwd=%s&session=SurveillanceStation&format=sid' % (self.user, self.passwd)
+            logging.info("<INFO> " + login_url)
 
             if self.Alive() == True:    # host is alive
                 self.login = requests.get(login_url)

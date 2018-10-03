@@ -15,8 +15,8 @@ class Email(object):
         SendAttachment(subject, body, file)"""
 
         # create file strings from os environment variables
-        lbplog = os.environ['LBPLOG'] + "/REPLACELBPPLUGINDIR/synology.log"
-        lbpconfig = os.environ['LBPCONFIG'] + "/REPLACELBPPLUGINDIR/plugin.cfg"
+        lbplog = os.environ['LBPLOG'] + "/synology/synology.log"
+        lbpconfig = os.environ['LBPCONFIG'] + "/synology/plugin.cfg"
 
         logging.basicConfig(filename=lbplog,level=logging.INFO,format='%(asctime)s: %(message)s ')
         cfg = ConfigParser()
