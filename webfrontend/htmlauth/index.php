@@ -19,8 +19,8 @@ if ($_POST){
 	$ds_host = $_POST['ds_host'];
 	$ds_port = $_POST['ds_port'];
 	$ds_cids = $_POST['ds_cids'];
-    if(empty($ds_cids)) { 
-        $cids = "0"; 
+    if(empty($ds_cids) || $ds_cids == 0) { 
+        $cids = ""; 
     }
 	else {
         $N = count($ds_cids); 
@@ -145,10 +145,13 @@ $cameras = file("$lbpdatadir/cameras.dat", FILE_IGNORE_NEW_LINES) or die("Unable
 foreach($cameras as $cam) {
     list($cid, $cmodel) = explode(':', $cam); // cid => cam id; model => description
     //echo "cmodel: ".$cmodel."<br>";
-	if ( in_array( $cid, $ds_cids, true ) ) {
+	if ( in_array( $cid, $ds_cids, true ) && $cid != 0 ) {
         //echo "yes!<br>";
 	    $camstring = $camstring."<input type=\"checkbox\" id=\"ds_cids_".$cid."\" name=\"ds_cids[]\" value=\"$cid\" class=\"custom\" data-mini=\"true\" data-cacheval=\"true\" checked=\"checked\"><label for=\"ds_cids_".$cid."\">$cmodel</label>";
 	}
+    elseif ($cid == 0) {
+        $camstring = "<span class=\"hint\">".$L['TEXT.NO_CAMS']."</span>";
+    }
     else {
         //echo "no!<br>";
         $camstring = $camstring."<input type=\"checkbox\" id=\"ds_cids_".$cid."\" name=\"ds_cids[]\" value=\"$cid\" class=\"custom\" data-mini=\"true\" data-cacheval=\"false\"><label for=\"ds_cids_".$cid."\">$cmodel</label>";
@@ -188,7 +191,10 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                     <div class="divTableCell">
 					<?php if (file_exists("/tmp/syno_plugin.lock")) { $pid = file_get_contents('/tmp/syno_plugin.lock'); echo "<span style=\"color:green\">".$L['TEXT.RUNNING']." (process ID: $pid)</span>"; } else { echo "<span style=\"color:red\">".$L['TEXT.NOT_RUNNING']."</span>"; } ?>
 					</div>
-                    <div class="divTableCell"><span class="hint"><a href="#" onClick="$.ajax({url: 'ajax_test.php?test=snapshot', type: 'GET', data: { 'test':'snapshot'} }).success(function(data) { $( '#test_server' ).html(data).trigger('create'); }) ;">Test Server</a></span><div id="test_server"></div></div>
+                    <div class="divTableCell"><span class="hint">
+                        <a id="btnlogs" data-role="button" href="#" data-inline="true" data-mini="true" data-icon="action" onClick="$.ajax({url: 'ajax_test.php?test=snapshot', type: 'GET', data: { 'test':'snapshot'} }).success(function(data) { $( '#test_server' ).html(data).trigger('create'); }) ;">Test</a>
+                        <div id="test_server"></div>
+                </div>
                 </div>
                 <div class="divTableRow">
                     <div class="divTableCell"><h3><?=$L['TEXT.DS'].' '.$L['TEXT.SETTINGS']?></h3></div>
@@ -206,7 +212,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 <div class="divTableRow">
                     <div class="divTableCell"><?=$L['TEXT.DSIP']?></div>
                     <div class="divTableCell"><input type="text" name="ds_host" id="ds_host" value="<?=$ds_host?>" data-validation-rule="special:hostname_or_ipaddr"></div>
-                    <div class="divTableCell">&nbsp;</div>
+                    <div class="divTableCell"><span class="hint"><?=$L['HELP.DSIP']?></span></div>
                 </div>
                 <div class="divTableRow">
                     <div class="divTableCell"><?=$L['TEXT.DSPORT']?></div>
@@ -216,7 +222,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 <div class="divTableRow">
                     <div class="divTableCell"><?=$L['TEXT.DSCAMS']?></div>
                     <div class="divTableCell"><fieldset data-role="control-group"><?=$camstring?></fieldset></div>
-                    <div class="divTableCell"><span class="hint"><a href="#" onClick="$.ajax({url: 'ajax_cams.php', type: 'GET', data: { 'get':'cams'} }).success(function(data) { $( '#installed_cams' ).html(data).trigger('create'); }) ;"><?=$L['TEXT.INSTALLED_CAMS']?></a></span><div id="installed_cams"></div></div>
+                    <div class="divTableCell">&nbsp;</div>
                 </div>
                 <div class="divTableRow">
                     <div class="divTableCell"><?=$L['TEXT.DSEMAIL']?></div>
@@ -234,9 +240,8 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 <div class="divTableRow" id="tbot_2">
                     <div class="divTableCell"><?=$L['TEXT.TBOTTOKEN']?></div>
                     <div class="divTableCell"><input type="text" name="tbot_token" id="tbot_token" value="<?=$tbot_token?>"></div>
-                    <div class="divTableCell"><span class="hint">
-                        <a href="#" onClick="$.ajax({url: '<?=$tbot_testurl?>', type: 'GET', data: { 'tbot':'test'} }).success(function(data) { $( '#tbot_test' ).html(data).trigger('create'); }) ;">Test</a>
-                        <a href="<?=$tbot_testurl?>" target="_blank">Test Telegram API</a></span><div id="tbot_test"></div>
+                    <div class="divTableCell">
+                    <a id="btnlogs" data-role="button" href="<?=$tbot_testurl?>" target="_blank" data-inline="true" data-mini="true" data-icon="action">Test Telegram</a>
                     </div>
                 </div>
                 <div class="divTableRow" id="tbot_3">
