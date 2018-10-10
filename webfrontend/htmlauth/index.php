@@ -13,12 +13,18 @@ LBWeb::lbheader($template_title, $helplink, $helptemplate);
 if ($_POST){
 	// Get values from form
 	$srv_port = $_POST['srv_port'];
+    $srv_init = 0;
 	$ds_user = $_POST['ds_user'];
 	$ds_pwd = $_POST['ds_pwd'];
     $ds_stored_pwd = $_POST['ds_stored_pwd'];
 	$ds_host = $_POST['ds_host'];
 	$ds_port = $_POST['ds_port'];
-	$ds_cids = $_POST['ds_cids'];
+    if (isset($_POST['ds_cids'])) { 
+        $ds_cids = $_POST['ds_cids']; 
+    } 
+    else {
+        $ds_cids = 0;  
+    }
     if(empty($ds_cids) || $ds_cids == 0) { 
         $cids = ""; 
     }
@@ -56,7 +62,7 @@ if ($_POST){
 	$cfg = new Config_Lite("$lbpconfigdir/plugin.cfg",LOCK_EX,INI_SCANNER_RAW);
 	$cfg->setQuoteStrings(False);
 	$cfg->set("SERVER","PORT",$srv_port);
-	$cfg->set("SERVER","INITIAL","0");
+	$cfg->set("SERVER","INITIAL",$srv_init);
 	$cfg->set("DISKSTATION","USER",$ds_user);
 	if ($ds_pwd && $ds_pwd != "") { $enc_pwd = base64_encode($ds_pwd); $cfg->set("DISKSTATION","PWD",$enc_pwd); }
 	else { $cfg->set("DISKSTATION","PWD",$ds_stored_pwd); }
@@ -91,17 +97,22 @@ else {
 	$ds_cids = explode(",", $cfg['DISKSTATION']['CIDS']);
 	$ds_mail = $cfg['DISKSTATION']['NOTIFICATION'];
 	$ds_sentvia = $cfg['DISKSTATION']['SENT_VIA'];
+    if ( $ds_sentvia != 2 ) {
+        $mail_cfg = new Config_Lite("$lbsconfigdir/mail.cfg",LOCK_EX,INI_SCANNER_RAW);
+        $email_srv = $mail_cfg['SMTP']['SMTPSERVER'];
+        $email_port = $mail_cfg['SMTP']['PORT'];
+        $email_user = $mail_cfg['SMTP']['SMTPUSER'];
+    }
 	if ($ds_sentvia == 1) {
 		$tbot_token = $cfg['TELEGRAM']['TOKEN'];
 		$tbot_chat = $cfg['TELEGRAM']['CHAT_ID'];
         $tbot_testurl = "https://api.telegram.org/bot".$tbot_token."/getUpdates";
-		$email_srv = $email_port = $email_user = $email_pwd = "";
 	} elseif ($ds_sentvia == 2) {
+        $email_srv = $cfg['EMAIL']['SERVER'];
+        $email_port = $cfg['EMAIL']['PORT'];
+        $email_user = $cfg['EMAIL']['USER'];
+        $email_pwd = $email_stored_pwd = $cfg['EMAIL']['PWD'];
 		$tbot_token = $tbot_chat = "";
-		$email_srv = $cfg['EMAIL']['SERVER'];
-		$email_port = $cfg['EMAIL']['PORT'];
-		$email_user = $cfg['EMAIL']['USER'];
-		$email_pwd = $cfg['EMAIL']['PWD'];
 	} else {
 		$tbot_token = $tbot_chat = "";
 		$email_srv = $email_port = $email_user = $email_pwd = "";
@@ -145,7 +156,7 @@ $cameras = file("$lbpdatadir/cameras.dat", FILE_IGNORE_NEW_LINES) or die("Unable
 foreach($cameras as $cam) {
     list($cid, $cmodel) = explode(':', $cam); // cid => cam id; model => description
     //echo "cmodel: ".$cmodel."<br>";
-	if ( in_array( $cid, $ds_cids, true ) && $cid != 0 ) {
+	if ( is_array($ds_cids) && in_array( $cid, $ds_cids, true ) && $cid != 0 ) {
         //echo "yes!<br>";
 	    $camstring = $camstring."<input type=\"checkbox\" id=\"ds_cids_".$cid."\" name=\"ds_cids[]\" value=\"$cid\" class=\"custom\" data-mini=\"true\" data-cacheval=\"true\" checked=\"checked\"><label for=\"ds_cids_".$cid."\">$cmodel</label>";
 	}
@@ -175,7 +186,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
 
 <form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.php">
     <input type="hidden" name="ds_stored_pwd" id="ds_stored_pwd" value="<?=$ds_stored_pwd?>">
-    <input type="hidden" name="email_stored_pwd" id="email_stored_pwd" value="<?=$email_pwd?>">
+    <input type="hidden" name="email_stored_pwd" id="email_stored_pwd" value="<?=$email_stored_pwd?>">
         <div class="divTable">
             <div class="divTableBody">
                 <div class="divTableRow">
@@ -189,10 +200,12 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 <div class="divTableRow">
                     <div class="divTableCell">Status</div>
                     <div class="divTableCell">
-					<?php if (file_exists("/tmp/syno_plugin.lock")) { $pid = file_get_contents('/tmp/syno_plugin.lock'); echo "<span style=\"color:green\">".$L['TEXT.RUNNING']." (process ID: $pid)</span>"; } else { echo "<span style=\"color:red\">".$L['TEXT.NOT_RUNNING']."</span>"; } ?>
+					    <?php if (file_exists("/tmp/syno_plugin.lock")) { $pid = file_get_contents('/tmp/syno_plugin.lock'); echo "<span style=\"color:green\">".$L['TEXT.RUNNING']." (process ID: $pid)</span>"; } else { echo "<span style=\"color:red\">".$L['TEXT.NOT_RUNNING']."</span>"; } ?>
 					</div>
-                    <div class="divTableCell"><span class="hint">
-                        <a id="btnlogs" data-role="button" href="#" data-inline="true" data-mini="true" data-icon="action" onClick="$.ajax({url: 'ajax_test.php?test=snapshot', type: 'GET', data: { 'test':'snapshot'} }).success(function(data) { $( '#test_server' ).html(data).trigger('create'); }) ;">Test</a>
+                    <div class="divTableCell">
+                        <?php if ($srv_init == 0) { 
+                        echo "<a id=\"btnlogs\" data-role=\"button\" href=\"#\" data-inline=\"true\" data-mini=\"true\" data-icon=\"action\" onClick=\"$.ajax({url: 'ajax_test.php?test=snapshot', type: 'GET', data: { 'test':'snapshot'} }).success(function(data) { $( '#test_server' ).html(data).trigger('create'); });\">Test</a>";
+                        } ?>
                         <div id="test_server"></div>
                 </div>
                 </div>
@@ -241,7 +254,8 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                     <div class="divTableCell"><?=$L['TEXT.TBOTTOKEN']?></div>
                     <div class="divTableCell"><input type="text" name="tbot_token" id="tbot_token" value="<?=$tbot_token?>"></div>
                     <div class="divTableCell">
-                    <a id="btnlogs" data-role="button" href="<?=$tbot_testurl?>" target="_blank" data-inline="true" data-mini="true" data-icon="action">Test Telegram</a>
+                        <?php if ( $tbot_token != '' && $tbot_chat != '' ) { ?>
+                            <a id="btnlogs" data-role="button" href="<?=$tbot_testurl?>" target="_blank" data-inline="true" data-mini="true" data-icon="action">Test Telegram</a> <?php } ?>
                     </div>
                 </div>
                 <div class="divTableRow" id="tbot_3">
