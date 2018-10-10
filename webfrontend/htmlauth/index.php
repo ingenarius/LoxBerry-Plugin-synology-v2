@@ -64,7 +64,7 @@ if ($_POST){
 	$cfg->set("SERVER","PORT",$srv_port);
 	$cfg->set("SERVER","INITIAL",$srv_init);
 	$cfg->set("DISKSTATION","USER",$ds_user);
-	if ($ds_pwd && $ds_pwd != "") { $enc_pwd = base64_encode($ds_pwd); $cfg->set("DISKSTATION","PWD",$enc_pwd); }
+	if ($ds_pwd && $ds_pwd != "") { $cfg->set("DISKSTATION","PWD",base64_encode($ds_pwd)); }
 	else { $cfg->set("DISKSTATION","PWD",$ds_stored_pwd); }
 	$cfg->set("DISKSTATION","HOST",$ds_host);
 	$cfg->set("DISKSTATION","PORT",$ds_port);
