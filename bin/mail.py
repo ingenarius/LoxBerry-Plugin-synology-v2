@@ -24,8 +24,8 @@ class Email(object):
         self.email_user = cfg.get("EMAIL", "USER")
         self.email_pwd = cfg.get("EMAIL", "PWD")
         self.mail_to = cfg.get("DISKSTATION", "NOTIFICATION")
-        self.smtp_server = cfg.get("EMAIL", "SMTP")
-        self.smtp_port = int(cfg.get("EMAIL", "SMTP_PORT"))
+        self.smtp_server = cfg.get("EMAIL", "SERVER")
+        self.smtp_port = int(cfg.get("EMAIL", "PORT"))
 
     def GetVars(self):
         """print out all variables used in this class"""
@@ -56,6 +56,7 @@ class Email(object):
             msg['From'] = self.email_user
             msg['To'] = self.mail_to
             response = self.ServerConnect(msg.as_string())
+            logging.info("<DEBUG> mail.py: ServerConnect response: %s" % response)
             if (response == True):
                 return True
             else:
@@ -64,7 +65,7 @@ class Email(object):
             logging.info("<ERROR> mail not sent")
             return False
 
-    def SendAttachment(self, subj, body, file):
+    def SendAttachment(self, subj, body, filename):
         """Send Email with attachment"""
         try:
             msg = MIMEMultipart()
@@ -72,11 +73,16 @@ class Email(object):
             msg['From'] = self.email_user
             msg['To'] = self.mail_to
             part = MIMEBase('application', "octet-stream")
-            part.set_payload(open(file, "rb").read())
+            try:
+                part.set_payload(open(filename, "rb").read())
+            except:
+                logging.info("<ERROR> snapshot could not be opened")
+                return False
             Encoders.encode_base64(part)
-            part.add_header('Content-Disposition', "attachment; filename=%s" % file)
+            part.add_header('Content-Disposition', "attachment; filename=%s" % filename)
             msg.attach(part)
             response = self.ServerConnect(msg.as_string())
+            logging.info("<DEBUG> mail.py: ServerConnect response: %s" % response)
             if (response == True):
                 return True
             else:

@@ -9,9 +9,11 @@ from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 from email.MIMEImage import MIMEImage
 from subprocess import call,STDOUT
+from ConfigParser import ConfigParser
+
 	
 class DiskStation(object):
-    def __init__(self, ds_user, ds_pwd, ds_ip, ds_port, email):
+    def __init__(self):
         """Creates an object for a Synology DiskStation using the official Web API v2.0.
         #######################################################
         #     Synology DISK STATION
@@ -20,27 +22,40 @@ class DiskStation(object):
         # change data according to your setup in syno_proxy.py
         #######################################################
         """
-        self.user = ds_user         # user to manage DiskStation
         # create file strings from os environment variables
         self.lbplog = os.environ['LBPLOG'] + "/synology/synology.log"
         self.lbpconfig = os.environ['LBPCONFIG'] + "/synology/plugin.cfg"
         self.lbpsnapshot = os.environ['LBPDATA'] + "/synology/snapshot.jpg"
         logging.basicConfig(filename=self.lbplog,level=logging.INFO,format='%(asctime)s: %(message)s ')
+
+	# try to parse config file and get varibles out
+	try:
+	    cfg = ConfigParser()
+	    cfg.read(self.lbpconfig)
+
+	    # initialise variable(s)
+	    DS_USER = cfg.get("DISKSTATION", "USER")
+	    DS_PWD = cfg.get("DISKSTATION", "PWD")
+	    DS_HOST = cfg.get("DISKSTATION", "HOST")
+	    DS_PORT = cfg.get("DISKSTATION", "PORT")
+	    EMAIL = cfg.get("DISKSTATION", "NOTIFICATION")
+	except ConfigParser.ParsingError, err:
+	    msg = "<ERROR> Error parsing config file: %s" % str(err)
+	    logging.info(msg)
+	    quit()
+
+	# try to decode password
         try:
-            self.passwd = base64.b64decode(ds_pwd)        # password
-            logging.info("<INFO> password decoding OK!")
+            self.passwd = base64.b64decode(DS_PWD)        # password
+            logging.debug("<INFO> password decoding OK!")
         except:
             logging.info("<ERROR> password decoding not possible!")
             self.passwd = ""
             return False
-        try:
-            from tbot import MyTelegramBot
-        except ImportError:
-            logging.info("<ERROR> Importing telegram module was not possible!")
-            return False
-        self.ip = ds_ip             # IP of the DiskStation
-        self.port = ds_port         # TCP Port to connect to the DiskStation
-        self.mail = email           # email for notifications / snapshots
+        self.user = DS_USER         # user to manage DiskStation
+        self.ip = DS_HOST           # IP of the DiskStation
+        self.port = DS_PORT         # TCP Port to connect to the DiskStation
+        self.mail = EMAIL           # email for notifications / snapshots
         self.api_url = "http://%s:%s/webapi/" % (self.ip, self.port)
         self.auth_url = "http://%s:%s/webapi/auth.cgi?" % (self.ip, self.port)
         
@@ -74,7 +89,6 @@ class DiskStation(object):
         """login to Diskstation and return 'True' or 'False' """
         try:
             login_url = self.auth_url + 'api=SYNO.API.Auth&method=Login&version=2&account=%s&passwd=%s&session=SurveillanceStation&format=sid' % (self.user, self.passwd)
-            logging.info("<INFO> " + login_url)
 
             if self.Alive() == True:    # host is alive
                 self.login = requests.get(login_url)
@@ -132,13 +146,31 @@ class DiskStation(object):
             logging.info("<ERROR> something went wrong!")
             return ''
 
+    def CamStatus(self, cam_id):
+        """Get status of the given camera (ID)"""
+        # http://192.168.1.1:5000/webapi/entry.cgi?
+        # version="8"&cameraIds="89"&blIncludeDeletedCam=true&deviceOutCap=true&streamInfo=true&method
+        # ="GetInfo"&api="SYNO.SurveillanceStation.Camera"&ptz=true&basic=true&privCamType=3&camAppInfo=t
+        # rue&optimize=true&fisheye=true&eventDetection=true
+
+        try:
+            url_param = 'entry.cgi?version="8"&cameraIds="%s"&api="SYNO.SurveillanceStation.Camera"&sid=%s' % (str(cam_id), self.sid)
+            stat_url = self.api_url + url_param
+            logging.info("<DEBUG> params: %s", stat_url)
+            result = self.Execute(stat_url)
+            logging.info("<DEBUG> cam status: %s", result)
+            return True
+        except:
+            logging.info("<ERROR> get cam status with ID %s failed" % str(cam_id))
+            return False
+
     def MotionDetectionOn(self, cam_id):
         """Turn on Motion Detection on all installed Cams. Return 'True' or 'False' """
         try:
             url_param = 'entry.cgi?source=1&camId=%s&version="1"&api="SYNO.SurveillanceStation.Camera.Event"&method="MDParamSave"&keep=true&_sid=%s' \
                 % (str(cam_id), self.sid)    # parameters of this API function
-            self.on_url = self.api_url + url_param
-            return self.Execute(self.on_url)
+            on_url = self.api_url + url_param
+            return self.Execute(on_url)
         except:
             logging.info("<ERROR> Motion Detection NOT enabled")
             return False
@@ -148,8 +180,8 @@ class DiskStation(object):
         try:
             url_param = 'entry.cgi?source=-1&camId=%s&version="1"&api="SYNO.SurveillanceStation.Camera.Event"&method="MDParamSave"&keep=true&_sid=%s' \
                 % (str(cam_id), self.sid)    # parameters of this API function
-            self.off_url = self.api_url + url_param
-            return self.Execute(self.off_url)
+            off_url = self.api_url + url_param
+            return self.Execute(off_url)
         except:
             logging.info("<ERROR> Motion Detection NOT disabled")
             return False
@@ -201,7 +233,7 @@ class DiskStation(object):
             url = self.api_url + url_param
             with open(self.lbpsnapshot, 'wb') as handle:
                 response = requests.get(url, stream=True)
-                logging.info(response)
+                logging.debug("<INFO> %s", response)
                 if not response.ok:
                     err_msg = "<ERROR> fetching snapshot: ", response
                     logging.info(err_msg)
@@ -222,8 +254,13 @@ class DiskStation(object):
             2   ...	Email"""
         if send_option == 1:
             try:
+                try:
+                    from tbot import MyTelegramBot
+                except ImportError:
+                    logging.info("<ERROR> Importing telegram module was not possible!")
+                    return False
                 bot = MyTelegramBot()
-                response = bot.send_photo(self.lbpsnapshot)
+                response = bot.send_pic(self.lbpsnapshot)
                 if response == True:
                     logging.info("<INFO> Photo sent to Telegram!")
                     return True
@@ -231,13 +268,16 @@ class DiskStation(object):
                     logging.info("<ERROR> Photo NOT sent to Telegram!")
                     return False
             except:
+                logging.info("<ERROR> Exception raised while sending photo to telegram")
                 return False
         elif send_option == 2:
             try:
+                logging.info("<DEBUG> SendSnapshot via email...")
                 m = Email()
                 m.SendAttachment("Snapshot", "Greetings from your Loxberry", self.lbpsnapshot)
+                return True
             except:
-                logging.info("<INFO> sending email not implemented yet")
+                logging.info("<ERROR> sending email failed")
                 return False
         else:
             logging.info("<ERROR> no valid send option!")

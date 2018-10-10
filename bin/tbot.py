@@ -1,6 +1,7 @@
 import os
 import time
 import urllib
+import logging
 from ConfigParser import ConfigParser
 
 class MyTelegramBot(object):
@@ -13,6 +14,9 @@ class MyTelegramBot(object):
         # change data according to your setup in proxy.py
         #######################################################
         """
+        # create logging instance
+        lbplog = os.environ['LBPLOG'] + "/synology/synology.log"
+        logging.basicConfig(filename=lbplog,level=logging.INFO,format='%(asctime)s: %(message)s ')
         # create file strings from os environment variables
         lbpconfig = os.environ['LBPCONFIG'] + "/synology/plugin.cfg"
         # create config object to the the telegram bot details
@@ -22,15 +26,18 @@ class MyTelegramBot(object):
         self.chat_id = cfg.get("TELEGRAM", "CHAT_ID")
         try:
 	    import telegram
-            self.bot = telegram.Bot(self.token)
         except:
-	    return False
+            logging.info("<ERROR> tbot.py: Error while importing \"telegram\" ")
+	    return None
+        self.bot = telegram.Bot(token=self.token)
         
     def get_me(self):
         """get information about the telegram bot"""
         try:
+            logging.info("<DEBUG> tbot-py: get_me... OK")
             return self.bot.getMe()
         except:
+            logging.info("<ERROR> tbot-py: get_me")
             return False
 
     def get_updates(self, offset=None):
@@ -38,10 +45,13 @@ class MyTelegramBot(object):
         try:
             if offset:
                 self.updates = self.bot.getUpdates(limit=5, timeout=60, offset=offset)
+                logging.info("<DEBUG> tbot-py: get_updates with offset... OK")
             else:
                 self.updates = self.bot.getUpdates(limit=5, timeout=60)
+                logging.info("<DEBUG> tbot-py: get_updates... OK")
             return self.updates
         except:
+            logging.info("<ERROR> tbot-py: get_updates")
             return False
 
     def get_last_update_id(self):
@@ -79,19 +89,40 @@ class MyTelegramBot(object):
         try:
             self.bot.sendChatAction(chat_id=self.chat_id, action=telegram.ChatAction.TYPING)
             self.bot.sendMessage(chat_id=self.chat_id, text=text)
+            logging.info("<DEBUG> tbot.py: send_message... OK")
             return True
         except:
+            logging.info("<ERROR> tbot-py: send_message")
             return False
             
     
     def send_photo(self, imagePath):
         """send photo to specific chat ID"""
         try:
-            self.bot.sendChatAction(chat_id=self.chat_id, action=telegram.ChatAction.UPLOAD_PHOTO)
+            self.bot.sendChatAction(chat_id=self.chat_id, action=upload_photo)
+            #self.bot.send_chat_action(chat_id=self.chat_id, action=telegram.ChatAction.UPLOAD_PHOTO)
+            logging.info("<DEBUG> tbot.py: sendChatAction")
             t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            logging.info("<DEBUG> tbot.py: add timestring")
             photo = open(imagePath, 'rb')
+            logging.info("<DEBUG> tbot.py: open photo")
             self.bot.sendPhoto(chat_id=self.chat_id, photo=photo, caption=t)
+            logging.info("<DEBUG> tbot.py: sendPhoto")
             return True
         except:
+            logging.info("<ERROR> tbot.py: sending photo failed")
+            return False
+
+    def send_pic(self, img):
+        """send picture to telegram chat"""
+        try:
+            logging.info("<DEBUG> tbot.py: send_pic... Started")
+            t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            logging.info("<DEBUG> tbot.py: timestamp %s" % t)
+            self.bot.send_photo(chat_id=self.chat_id, photo=open(img, 'rb'), caption=t)
+            logging.info("<DEBUG> tbot.py: send_photo... OK")
+            return True
+        except:
+            logging.info("<ERROR> tbot.py: sending photo failed")
             return False
 

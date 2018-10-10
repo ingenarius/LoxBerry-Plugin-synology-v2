@@ -44,11 +44,6 @@ def main():
         
     # initialise variable(s)
     result = False
-    DS_USER = cfg.get("DISKSTATION", "USER")
-    DS_PWD = cfg.get("DISKSTATION", "PWD")
-    DS_HOST = cfg.get("DISKSTATION", "HOST")
-    DS_PORT = cfg.get("DISKSTATION", "PORT")
-    EMAIL = cfg.get("DISKSTATION", "NOTIFICATION")
     CIDS = cfg.get("DISKSTATION", "CIDS")
     try:
         SENT_VIA = int(cfg.get("DISKSTATION", "SENT_VIA"))
@@ -56,13 +51,14 @@ def main():
         SENT_VIA = 0
     MINISERVER = global_cfg.get("MINISERVER1", "IPADDRESS")
     logging.info("<INFO> loading configuration...")
-    logging.info("<INFO> DiskStation - " + DS_HOST + ", " + DS_PORT + ", " + DS_USER + ", " + EMAIL)
-    logging.info("<INFO> Camera IDs - " + CIDS)
-    logging.info("<INFO> Miniserver - " + MINISERVER)	
 
     while True:
         data, addr = sock.recvfrom( 1024 ) # read data with buffer size of 1024 bytes
         logging.info("<INFO> received message from %s: %s" % (addr[0], data))
+        try:
+            cam_id = int(data.split(":")[1])
+        except:
+            cam_id = 0
 
         if ( str(data).__contains__("TestMail") ):
             email = Email()
@@ -75,7 +71,7 @@ def main():
         
         if (addr[0] == MINISERVER or addr[0] == "127.0.0.1"):     # only the miniserver and loxberry are allowed to send commands
             # create DS object and login
-            ds = DiskStation(DS_USER, DS_PWD, DS_HOST, DS_PORT, EMAIL)
+            ds = DiskStation()
             s = ds.Login()
             # on login error the answer will be "False"
             if ( s == False ):
@@ -83,11 +79,11 @@ def main():
             # StartRec sends also the ID of the camera
             elif ( str(data).__contains__("StartRec:") ):
                 logging.info("<INFO> %s: executing..." % data)
-                response = ds.StartRec(data.split(":")[1])
+                response = ds.StartRec(cam_id)
             # StopRec sends also the ID of the camera
             elif ( str(data).__contains__("StopRec:") ):
                 logging.info("<INFO> %s: executing..." % data)
-                response = ds.StopRec(data.split(":")[1])
+                response = ds.StopRec(cam_id)
             # Motion detection enable/disable for all cameras
             elif ( str(data).__contains__("MotionDetection") ):
                 for c in CIDS.split(","):
@@ -95,17 +91,17 @@ def main():
                     sleep(3)        # wait before the next request will be sent
                     if ( (data == "MotionDetectionOn") and c != 0):
                         logging.info("<INFO> %s: executing for camera ID %s ..." % (data, str(c)))
-                        response = ds.MotionDetectionOn(c)
+                        response = ds.MotionDetectionOn(int(c))
                     elif ( (data == "MotionDetectionOff") and c != 0):
                         logging.info("<INFO> %s: executing for camera ID %s ..." % (data, str(c)))
-                        response = ds.MotionDetectionOff(c)
+                        response = ds.MotionDetectionOff(int(c))
                     else:
                         continue
             # request does not match
             elif ( str(data).__contains__("Snapshot:") ):
-                logging.info("<INFO> %s: executing..." % data)
+                logging.info("<INFO> executing \"%s\"..." % data)
                 for i in range(1, 4):
-                    response = ds.GetSnapshot(data.split(":")[1])
+                    response = ds.GetSnapshot(cam_id)
                     if response == True and SENT_VIA != 0:
                         response = ds.SendSnapshot(SENT_VIA)	# send snapshot via: 1 - Telegram bot, 2 - Email
                         sleep(3)
@@ -117,7 +113,7 @@ def main():
             if response == True:
                 logging.info("<INFO> successful executed \"%s\" " % data)
             else:
-                logging.info("<ERROR> %s not executed" % data)
+                logging.info("<ERROR> \"%s\" not executed" % data)
             # logout from Diskstation
             ds.Logout()
         else:
