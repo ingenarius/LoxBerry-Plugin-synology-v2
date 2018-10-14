@@ -60,8 +60,6 @@ echo "<INFO> Plugin BIN folder is: $PBIN"
 # install telegram library for python
 echo "<INFO> installing \"python-telegram-bot\"..."
 python -m pip install --user pip --upgrade
-python -m pip install --user setuptools --upgrade
-python -m pip install --user wheel --upgrade
 python -m pip install --user python-telegram-bot --upgrade
 
 echo "<INFO> start syno_plugin..."
