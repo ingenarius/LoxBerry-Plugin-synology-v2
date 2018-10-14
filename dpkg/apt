@@ -5,3 +5,5 @@ python-requests
 python-configparser
 python-socks
 python-pip
+python-wheel
+python-setuptools
