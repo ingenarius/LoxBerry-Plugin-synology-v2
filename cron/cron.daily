@@ -21,5 +21,7 @@ python -m pip install --user pip --upgrade
 python -m pip install --user python-telegram-bot --upgrade
 python $BINDIR/cameras.py &
 
+$LBHOMEDIR/system/daemons/plugins/$PDIR restart
+
 exit 0
 
