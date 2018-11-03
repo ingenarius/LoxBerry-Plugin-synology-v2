@@ -25,6 +25,7 @@ class MyTelegramBot(object):
         self.token = cfg.get("TELEGRAM", "TOKEN")
         self.chat_id = cfg.get("TELEGRAM", "CHAT_ID")
         try:
+	    logging.info("<INFO> tbot.py: trying to import module \"telegram\" ")
 	    import telegram
         except:
             logging.info("<ERROR> tbot.py: Error while importing \"telegram\" ")
