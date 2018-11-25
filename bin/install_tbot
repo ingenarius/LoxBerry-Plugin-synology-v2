@@ -1,0 +1,6 @@
+#!/bin/bash
+
+# (re-)install telegram library for python
+echo "<INFO> installing \"python-telegram-bot\"..."
+python -m pip install --user pip --upgrade
+python -m pip install --user python-telegram-bot --upgrade
