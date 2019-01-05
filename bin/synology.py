@@ -154,7 +154,7 @@ class DiskStation(object):
         # rue&optimize=true&fisheye=true&eventDetection=true
 
         try:
-            url_param = 'entry.cgi?version="8"&cameraIds="%s"&api="SYNO.SurveillanceStation.Camera"&sid=%s' % (str(cam_id), self.sid)
+            url_param = 'entry.cgi?api=SYNO.SurveillanceStation.Camera.Status&version=1&method=OneTime&id_list=%s&_sid=%s' % (str(cam_id), self.sid)
             stat_url = self.api_url + url_param
             logging.info("<DEBUG> params: %s", stat_url)
             result = self.Execute(stat_url)
@@ -228,6 +228,11 @@ class DiskStation(object):
 
     def GetSnapshot(self, cam_id):
         """Get snapshot from camera and store it as /tmp/snapshot.jpg"""
+        cam_ok = self.CamStatus(cam_id)
+        logging.debug("<DEBUG> camstat: %s" % str(cam_ok))
+        if cam_ok == False:
+            logging.info("<INFO> camera is not connected. Aborting Snapshot...")
+            return False
         try:
             url_param = 'entry.cgi?version=9&id=%s&api="SYNO.SurveillanceStation.Camera"&method="GetSnapshot"&profileType=0&_sid=%s' % (str(cam_id), self.sid)
             url = self.api_url + url_param
