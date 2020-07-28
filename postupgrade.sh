@@ -66,8 +66,8 @@ rm -r /tmp/uploads/$PTEMPDIR\_upgrade
 
 # install telegram library for python
 echo "<INFO> installing \"python-telegram-bot\"..."
-python -m pip install --user pip --upgrade
-python -m pip install --user python-telegram-bot --upgrade
+pip install --user --upgrade pip
+pip install --user --upgrade python-telegram-bot
 
 echo "<INFO> start syno_plugin..."
 $LBHOMEDIR/system/daemons/plugins/$PDIR start
