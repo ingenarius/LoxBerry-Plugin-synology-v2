@@ -7,3 +7,8 @@ python-socks
 python-pip
 python-wheel
 python-setuptools
+python3-requests
+python3-socks
+python3-pip
+python3-wheel
+python3-setuptools
