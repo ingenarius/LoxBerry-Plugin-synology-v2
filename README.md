@@ -1,7 +1,12 @@
 # LoxBerry-Plugin-synology-v2
 Brigde for Synology Surveillance Station <-> Loxone Miniserver. 
 
-Designed to work on LoxBerry > v1.2.4
+Designed to work on LoxBerry > v2.0
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! Still under development !!!
+!!!  Do not use right now   !!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 Let your Loxone Miniserver perform Video Surveillance:
 * Motion Detection on (e.g. when turning on your alarm system)
