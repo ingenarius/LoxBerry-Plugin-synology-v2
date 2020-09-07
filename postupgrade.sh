@@ -65,9 +65,9 @@ echo "<INFO> Remove temporary folders..."
 rm -r /tmp/uploads/$PTEMPDIR\_upgrade
 
 # install telegram library for python
-echo "<INFO> installing \"python-telegram-bot\"..."
-pip install --user --upgrade pip
-pip install --user --upgrade python-telegram-bot
+#echo "<INFO> installing \"python-telegram-bot\"..."
+#pip install --user --upgrade pip
+#pip install --user --upgrade python-telegram-bot
 
 echo "<INFO> start syno_plugin..."
 $LBHOMEDIR/system/daemons/plugins/$PDIR start
