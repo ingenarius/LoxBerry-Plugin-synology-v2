@@ -10,15 +10,16 @@
 # Name this file "daemon" in your plugin-archive. It will be renamed to NAME
 # during installation
 
-PLUGINDIR=REPLACELBPPLUGINDIR
+PLUGINDIR=synology
+PY_VERSION=3
 
 cmd="ps ux | grep syno_plugin.py | grep -v grep"
-start="python $LBPBIN/$PLUGINDIR/syno_plugin.py"
-stop="kill $(ps aux | grep "[p]ython $LBPBIN/$PLUGINDIR/syno_plugin.py" | awk '{print $2}')"
+start="python$PY_VERSION $LBPBIN/$PLUGINDIR/syno_plugin.py"
+stop="kill $(ps aux | grep "[p]ython$PY_VERSION $LBPBIN/$PLUGINDIR/syno_plugin.py" | awk '{print $2}')"
 
 function get_pid() {
     # get process ID 
-    PID=$(ps aux | grep "[p]ython $LBPBIN/$PLUGINDIR/syno_plugin.py" | awk '{print $2}')
+    PID=$(ps aux | grep "[p]ython$PY_VERSION $LBPBIN/$PLUGINDIR/syno_plugin.py" | awk '{print $2}')
     if [ $PID ]; then
         # write the process ID into a lock file
         echo $PID > /tmp/syno_plugin.lock
