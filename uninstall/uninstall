@@ -1,6 +1,6 @@
 #/bin/sh 
 
-apt-get -y purge python-requests python-configparser python-socks python-pip
+apt-get -y purge python-requests python-urllib3 python-configparser python-socks python-pip python-wheel python-setuptools python3-requests python3-urllib3 python3-socks python3-pip python3-wheel python3-setuptools 
 apt-get -y autoremove
 
 # Exit with Status 0
