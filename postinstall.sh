@@ -58,9 +58,13 @@ echo "<INFO> Plugin SBIN folder is: $PSBIN"
 echo "<INFO> Plugin BIN folder is: $PBIN"
 
 # install telegram library for python
-#echo "<INFO> installing \"python-telegram-bot\"..."
-#pip install --user --upgrade pip 
-#pip install --user --upgrade python-telegram-bot 
+echo "<INFO> installing \"python-telegram-bot 12.3.0\" for python2..."
+pip2 install --user --upgrade pip
+pip2 install --user python-telegram-bot==12.3.0 
+
+echo "<INFO> installing latest version of \"python-telegram-bot\" for python3..."
+pip3 install --user --upgrade pip
+pip3 install --user --upgrade python-telegram-bot
 
 echo "<INFO> start syno_plugin..."
 $LBHOMEDIR/system/daemons/plugins/$PSHNAME start
