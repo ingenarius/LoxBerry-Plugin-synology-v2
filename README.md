@@ -1,7 +1,7 @@
 # LoxBerry-Plugin-synology-v2
 Brigde for Synology Surveillance Station <-> Loxone Miniserver. 
 
-Designed to work on LoxBerry > v1.2.4
+Designed to work on LoxBerry > v2.2.x
 
 Let your Loxone Miniserver perform Video Surveillance:
 * Motion Detection on (e.g. when turning on your alarm system)
@@ -9,4 +9,4 @@ Let your Loxone Miniserver perform Video Surveillance:
 * sends a snapshot via Telegram Bot (to your mobile) or email (e.g. when the doorbell rings)
 
 Known Issues:
-* Every Loxberry Update deletes the "pyhton-telegram-bot" which makes sending snapshots to telegram impossible
+* ...
