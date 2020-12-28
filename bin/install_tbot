@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # (re-)install telegram library for python
-python -m pip2 install --user --upgrade pip
-python -m pip2 install --user python-telegram-bot==12.3.0
-python -m pip3 install --user --upgrade pip
-python -m pip3 install --user --upgrade python-telegram-bot 
+/usr/bin/python2 -m pip install --user --upgrade pip
+/usr/bin/python2 -m pip install --user python-telegram-bot==12.3.0
+/usr/bin/python3 -m pip install --user --upgrade pip
+/usr/bin/python3 -m pip install --user --upgrade python-telegram-bot
