@@ -37,15 +37,18 @@ class Email(object):
         cfg = ConfigParser()
         cfg.read(lbpconfig)
         self.email_user = cfg.get("EMAIL", "USER")
-        self.email_pwd = cfg.get("EMAIL", "PWD")
         self.mail_to = cfg.get("DISKSTATION", "NOTIFICATION")
         self.smtp_server = cfg.get("EMAIL", "SERVER")
         self.smtp_port = int(cfg.get("EMAIL", "PORT"))
+        try:
+            self.email_pwd = base64.b64decode(cfg.get("EMAIL", "PWD")).decode()
+            logging.debug("<DEBUG> mail.py: decoded password:", self.email_pwd)
+        except:
+            logging.info("<ERROR> mail.py: password could not be decoded!")
 
     def GetVars(self):
         """print out all variables used in this class"""
         print(self.email_user)
-        print(self.email_pwd)
         print(self.mail_to)
         print(self.smtp_server)
         print(self.smtp_port)
@@ -54,8 +57,9 @@ class Email(object):
         """makes the connection to the smtp server and sends the mail"""
         try:
             server = smtplib.SMTP(self.smtp_server, self.smtp_port)
+            server.ehlo()
             server.starttls()
-            server.login(self.email_user, base64.b64decode(self.email_pwd))
+            server.login(self.email_user, self.email_pwd)
             server.sendmail(self.email_user, self.mail_to, msg)
             server.quit()
             return True
@@ -71,7 +75,7 @@ class Email(object):
             msg['From'] = self.email_user
             msg['To'] = self.mail_to
             response = self.ServerConnect(msg.as_string())
-            logging.info("<DEBUG> mail.py: ServerConnect response: %s" % response)
+            logging.debug("<DEBUG> mail.py: ServerConnect response: %s" % response)
             if (response == True):
                 return True
             else:
@@ -97,7 +101,7 @@ class Email(object):
             part.add_header('Content-Disposition', "attachment; filename=%s" % filename)
             msg.attach(part)
             response = self.ServerConnect(msg.as_string())
-            logging.info("<DEBUG> mail.py: ServerConnect response: %s" % response)
+            logging.debug("<DEBUG> mail.py: ServerConnect response: %s" % response)
             if (response == True):
                 return True
             else:
