@@ -28,11 +28,11 @@ class MyTelegramBot(object):
         self.token = cfg.get("TELEGRAM", "TOKEN")
         self.chat_id = cfg.get("TELEGRAM", "CHAT_ID")
         try:
-	    logging.info("<INFO> tbot.py: trying to import module \"telegram\" ")
-	    import telegram
+            logging.info("<INFO> tbot.py: trying to import module \"telegram\" ")
+            import telegram
         except:
             logging.info("<ERROR> tbot.py: Error while importing \"telegram\" ")
-	    return None
+            return None
         self.bot = telegram.Bot(token=self.token)
         
     def get_me(self):
@@ -123,7 +123,7 @@ class MyTelegramBot(object):
             logging.info("<DEBUG> tbot.py: send_pic... Started")
             t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
             logging.info("<DEBUG> tbot.py: timestamp %s" % t)
-            self.bot.send_photo(chat_id=self.chat_id, photo=open(img, 'rb'), caption=t)
+            self.bot.send_photo(chat_id=self.chat_id, photo=open(img, 'rb'), caption=str(t))
             logging.info("<DEBUG> tbot.py: send_photo... OK")
             return True
         except:

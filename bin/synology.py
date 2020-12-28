@@ -46,12 +46,12 @@ class DiskStation(object):
 
         # try to decode password
         try:
-            self.passwd = base64.b64decode(DS_PWD)        # password
+            passwd = base64.b64decode(DS_PWD)
+            self.passwd = str(passwd.decode('ascii'))
             logging.debug("<INFO> password decoding OK!")
         except:
             logging.info("<ERROR> password decoding not possible!")
             self.passwd = ""
-            return False
         self.user = DS_USER         # user to manage DiskStation
         self.ip = DS_HOST           # IP of the DiskStation
         self.port = DS_PORT         # TCP Port to connect to the DiskStation
@@ -266,6 +266,7 @@ class DiskStation(object):
                     return False
                 bot = MyTelegramBot()
                 response = bot.send_pic(self.lbpsnapshot)
+                logging.info("<DEBUG> send_pic response: %s" % response)
                 if response == True:
                     logging.info("<INFO> Photo sent to Telegram!")
                     return True

@@ -58,6 +58,7 @@ def main():
 
     while True:
         data, addr = sock.recvfrom( 1024 ) # read data with buffer size of 1024 bytes
+        data = str(data.decode('ascii'))
         logging.info("<INFO> received message from %s: %s" % (addr[0], data))
         try:
             cam_id = int(data.split(":")[1])
