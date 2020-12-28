@@ -2,7 +2,10 @@ import os
 import time
 import urllib
 import logging
-from ConfigParser import ConfigParser
+try:
+    from ConfigParser import ConfigParser
+except:
+    from configparser import ConfigParser
 
 class MyTelegramBot(object):
     def __init__(self):

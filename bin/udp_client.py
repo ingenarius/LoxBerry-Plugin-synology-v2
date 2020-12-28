@@ -5,7 +5,8 @@ import socket
 
 UDP_IP="127.0.0.1"
 UDP_PORT=5000
-MESSAGE="miniserver says: go to sleep"
+#MESSAGE="miniserver says: go to sleep"
+MESSAGE="Snapshot: 2"
 
 print "UDP target IP:", UDP_IP
 print "UDP target port:", UDP_PORT

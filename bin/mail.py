@@ -2,11 +2,26 @@ import os
 import logging
 import smtplib
 import base64
-from ConfigParser import ConfigParser
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEText import MIMEText
-from email.MIMEBase import MIMEBase
-from email import Encoders
+try:
+    from ConfigParser import ConfigParser
+except:
+    from configparser import ConfigParser
+try:
+    from email.MIMEMultipart import MIMEMultipart
+except:
+    from email.mime.multipart import MIMEMultipart
+try:
+    from email.MIMEText import MIMEText
+except:
+    from email.mime.text import MIMEText
+try:
+    from email.MIMEBase import MIMEBase
+except:
+    from email.mime.base import MIMEBase
+try:
+    from email import Encoders
+except:
+    from email import encoders as Encoders
 
 class Email(object):
     def __init__(self):
@@ -29,11 +44,11 @@ class Email(object):
 
     def GetVars(self):
         """print out all variables used in this class"""
-        print self.email_user
-        print self.email_pwd
-        print self.mail_to
-        print self.smtp_server
-        print self.smtp_port
+        print(self.email_user)
+        print(self.email_pwd)
+        print(self.mail_to)
+        print(self.smtp_server)
+        print(self.smtp_port)
         
     def ServerConnect(self, msg):
         """makes the connection to the smtp server and sends the mail"""

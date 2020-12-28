@@ -1,10 +1,14 @@
 import os
-from synology import DiskStation
-from ConfigParser import ConfigParser
-from mail import Email
-from time import sleep
 import socket
 import logging
+from synology import DiskStation
+from mail import Email
+from time import sleep
+try:
+    from ConfigParser import ConfigParser
+except:
+    from configparser import ConfigParser
+
 
 def main():
     """loxberry plugin for synology surveillance station API functions:
@@ -28,8 +32,8 @@ def main():
         global_cfg = ConfigParser()
         cfg.read(lbpconfig)
         global_cfg.read(lbsconfig)
-    except ConfigParser.ParsingError, err:
-        msg = "Error parsing config file: %s" % str(err)
+    except:
+        msg = "<ERROR> Error parsing config files..." 
         logging.info(msg)
 
     # define UDP server

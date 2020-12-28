@@ -1,11 +1,15 @@
 #!/usr/bin/python
 
-from synology import DiskStation
-from ConfigParser import ConfigParser
-from time import sleep
 import socket
 import logging
 import os
+from synology import DiskStation
+from time import sleep
+try:
+    from ConfigParser import ConfigParser
+except:
+    from configparser import ConfigParser
+
 
 def main():
     """get a list of all installed cameras"""

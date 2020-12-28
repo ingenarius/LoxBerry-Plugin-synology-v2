@@ -5,13 +5,13 @@ import urllib
 import smtplib
 import base64
 from mail import Email
-from email.MIMEMultipart import MIMEMultipart
-from email.MIMEText import MIMEText
-from email.MIMEImage import MIMEImage
 from subprocess import call,STDOUT
-from ConfigParser import ConfigParser
+try:
+    from ConfigParser import ConfigParser
+except:
+    from configparser import ConfigParser
 
-	
+
 class DiskStation(object):
     def __init__(self):
         """Creates an object for a Synology DiskStation using the official Web API v2.0.
@@ -28,23 +28,23 @@ class DiskStation(object):
         self.lbpsnapshot = os.environ['LBPDATA'] + "/synology/snapshot.jpg"
         logging.basicConfig(filename=self.lbplog,level=logging.INFO,format='%(asctime)s: %(message)s ')
 
-	# try to parse config file and get varibles out
-	try:
-	    cfg = ConfigParser()
-	    cfg.read(self.lbpconfig)
+        # try to parse config file and get varibles out
+        try:
+            cfg = ConfigParser()
+            cfg.read(self.lbpconfig)
 
-	    # initialise variable(s)
-	    DS_USER = cfg.get("DISKSTATION", "USER")
-	    DS_PWD = cfg.get("DISKSTATION", "PWD")
-	    DS_HOST = cfg.get("DISKSTATION", "HOST")
-	    DS_PORT = cfg.get("DISKSTATION", "PORT")
-	    EMAIL = cfg.get("DISKSTATION", "NOTIFICATION")
-	except ConfigParser.ParsingError, err:
-	    msg = "<ERROR> Error parsing config file: %s" % str(err)
-	    logging.info(msg)
-	    quit()
+            # initialise variable(s)
+            DS_USER = cfg.get("DISKSTATION", "USER")
+            DS_PWD = cfg.get("DISKSTATION", "PWD")
+            DS_HOST = cfg.get("DISKSTATION", "HOST")
+            DS_PORT = cfg.get("DISKSTATION", "PORT")
+            EMAIL = cfg.get("DISKSTATION", "NOTIFICATION")
+        except:
+            msg = "<ERROR> Error parsing config files..."
+            logging.info(msg)
+            quit()
 
-	# try to decode password
+        # try to decode password
         try:
             self.passwd = base64.b64decode(DS_PWD)        # password
             logging.debug("<INFO> password decoding OK!")
