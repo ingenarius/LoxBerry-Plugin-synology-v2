@@ -77,7 +77,6 @@ if ($_POST){
 	if ($email_user && $email_user != "") { $cfg->set("EMAIL","USER",$email_user); }
 	else { $cfg->set("EMAIL","USER",""); }
 	if ($email_pwd && $email_pwd != "") { $cfg->set("EMAIL","PWD",base64_encode($email_pwd)); }
-	else { $cfg->set("EMAIL","PWD",$email_stored_pwd); }
 	$cfg->save();
 	// Restart Daemon
     pclose(popen("$lbhomedir/system/daemons/plugins/$lbpplugindir restart", 'r'));
