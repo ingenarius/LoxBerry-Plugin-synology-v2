@@ -17,8 +17,10 @@ BINDIR=REPLACELBPBINDIR
 ############################
 $LBHOMEDIR/system/daemons/plugins/$PDIR restart
 
-#python -m pip install --user pip --upgrade
-#python -m pip install --user python-telegram-bot --upgrade
+/usr/bin/python2 -m pip install --user --upgrade pip
+/usr/bin/python3 -m pip install --user --upgrade pip
+/usr/bin/python3 -m pip install --user --upgrade python-telegram-bot
+
 python $BINDIR/cameras.py &
 
 $LBHOMEDIR/system/daemons/plugins/$PDIR restart
