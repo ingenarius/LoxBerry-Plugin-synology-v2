@@ -72,6 +72,11 @@ cp -v -r $PLOG/ /tmp/uploads/$PTEMPDIR\_upgrade/log
 echo "<INFO> kill existing syno_plugin.py process..."
 $LBHOMEDIR/system/daemons/plugins/$PSHNAME stop
 
+# upgrade pip for python
+echo "<INFO> upgrading pip for python..."
+pip2 install --user --upgrade pip
+pip3 install --user --upgrade pip
+
 # Exit with Status 0
 exit 0
 
