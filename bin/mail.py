@@ -42,7 +42,6 @@ class Email(object):
         self.smtp_port = int(cfg.get("EMAIL", "PORT"))
         try:
             self.email_pwd = base64.b64decode(cfg.get("EMAIL", "PWD")).decode()
-            logging.debug("<DEBUG> mail.py: decoded password:", self.email_pwd)
         except:
             logging.info("<ERROR> mail.py: password could not be decoded!")
 
