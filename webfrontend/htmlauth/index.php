@@ -169,7 +169,7 @@ foreach($cameras as $cam) {
     }
 }	
 
-//Sent via Dropdown Box
+// sent_via dropdown box
 $choices = array(0 => $L['TEXT.TXT_NONE'], 1 => "Telegram Bot", 2 => "Email");
 $options = "";
 foreach($choices as $code => $name) {
@@ -180,7 +180,7 @@ foreach($choices as $code => $name) {
   		$options .= "<option value=\"$code\">$name</option>\n";
 	}
 }
-$select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options</select>";
+$sent_via_select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options</select>";
 
 ?>
 
@@ -244,7 +244,7 @@ $select = "<select name=\"sent_via\" id=\"sent_via\" data-mini=\"true\">$options
                 </div>
                 <div class="divTableRow">
                     <div class="divTableCell"><?=$L['TEXT.DSSNAPSHOT']?></div>
-                    <div class="divTableCell"><?=$select?></div>
+                    <div class="divTableCell"><?=$sent_via_select?></div>
                     <div class="divTableCell">&nbsp;</div>
                 </div>
                 <div class="divTableRow" id="tbot_1">
