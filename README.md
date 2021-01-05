@@ -8,5 +8,8 @@ Let your Loxone Miniserver perform Video Surveillance:
 * Motion Detection off (e.g when turning off your alarm system)
 * sends a snapshot via Telegram Bot (to your mobile) or email (e.g. when the doorbell rings)
 
+More information and documentation can be found here:
+https://www.loxwiki.eu/display/LOXBERRY/Synology+Surveillance+Station+v2
+
 Known Issues:
 * ...
