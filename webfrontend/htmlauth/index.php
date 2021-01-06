@@ -65,6 +65,7 @@ if ($_POST){
 	$cfg->set("SERVER","INITIAL",$srv_init);
 	$cfg->set("DISKSTATION","USER",$ds_user);
 	if ($ds_pwd && $ds_pwd != "") { $cfg->set("DISKSTATION","PWD",base64_encode($ds_pwd)); }
+	else { $cfg->set("DISKSTATION","PWD",$ds_stored_pwd); }
 	$cfg->set("DISKSTATION","HOST",$ds_host);
 	$cfg->set("DISKSTATION","PORT",$ds_port);
 	$cfg->set("DISKSTATION","CIDS",$cids);
@@ -77,6 +78,7 @@ if ($_POST){
 	if ($email_user && $email_user != "") { $cfg->set("EMAIL","USER",$email_user); }
 	else { $cfg->set("EMAIL","USER",""); }
 	if ($email_pwd && $email_pwd != "") { $cfg->set("EMAIL","PWD",base64_encode($email_pwd)); }
+	else { $cfg->set("EMAIL","PWD",$email_stored_pwd); }
 	$cfg->save();
 	// Restart Daemon
     pclose(popen("$lbhomedir/system/daemons/plugins/$lbpplugindir restart", 'r'));
