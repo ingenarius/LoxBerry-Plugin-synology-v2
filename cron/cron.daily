@@ -1,5 +1,5 @@
 !/bin/sh
-  
+
 # This is a sample cron file. According to it's name it will go to
 # ~/system/cron/cron.10min. You may also let your Pluginscript create a
 # symbolic link dynamically in ~/system/cron/cron.10min which links to your
@@ -17,13 +17,8 @@ BINDIR=REPLACELBPBINDIR
 ############################
 $LBHOMEDIR/system/daemons/plugins/$PDIR restart
 
-/usr/bin/python2 -m pip install --user --upgrade pip
-/usr/bin/python3 -m pip install --user --upgrade pip
-/usr/bin/python3 -m pip install --user --upgrade python-telegram-bot
-
-python $BINDIR/cameras.py &
+python3 $BINDIR/cameras.py &
 
 $LBHOMEDIR/system/daemons/plugins/$PDIR restart
 
 exit 0
-
