@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This is a sample DAEMON file which is started at boottime. 
+# This is a sample DAEMON file which is started at boottime.
 # CAUTION! MAKE SURE YOUR SCRIPT EXITS CLEANLY! It is a good idea
 # to start your daemon as background process. If you do something wrong here
 # your user's systems may hang forever during boottime!
@@ -12,35 +12,31 @@
 
 PLUGINDIR=synology
 PY_VERSION=3
+TIME=$(date +"%Y-%m-%d %H:%M:%S,%3N")
 
-cmd="ps ux | grep syno_plugin.py | grep -v grep"
+# get process ID
+PID=$(ps ux | grep 'syno_plugin.py' | grep -v 'grep' | awk '{print $2}')
 start="python$PY_VERSION $LBPBIN/$PLUGINDIR/syno_plugin.py"
-stop="kill $(ps aux | grep "[p]ython$PY_VERSION $LBPBIN/$PLUGINDIR/syno_plugin.py" | awk '{print $2}')"
 
 function get_pid() {
-    # get process ID 
-    PID=$(ps aux | grep "[p]ython$PY_VERSION $LBPBIN/$PLUGINDIR/syno_plugin.py" | awk '{print $2}')
     if [ $PID ]; then
         # write the process ID into a lock file
         echo $PID > /tmp/syno_plugin.lock
-        /usr/bin/logger "<INFO> syno_plugin was started. Process ID: $PID"
+        echo "$TIME: <INFO> syno_plugin was started. Process ID: $PID" >> $LBPLOG/$PLUGINDIR/synology.log
         exit 0
     else
         # if there is no process ID, plugin is not running -> remove the lock file
         if [ -a /tmp/syno_plugin.lock ]; then rm /tmp/syno_plugin.lock; fi
-        /usr/bin/logger "<ERROR> syno_plugin was NOT started..."
+        echo "$TIME: <ERROR> syno_plugin was NOT started..." >> $LBPLOG/$PLUGINDIR/synology.log
         exit 1
     fi
 }
 
-# run the command to check
-eval "$cmd" > /dev/null 2>&1
-
 # did the previous command return a non-zero exit code?
-if [ $? -ne 0 ]; then
-    is_running=0    # syno_plugin is stopped
+if [ $PID ]; then
+    is_running=1    # syno_plugin is stopped
 else
-    is_running=1    # syno_plugin is running
+    is_running=0    # syno_plugin is running
 fi
 
 case "$1" in
@@ -49,27 +45,27 @@ case "$1" in
             $start &
             get_pid
         else
-            /usr/bin/logger "<INFO> syno_plugin is already running"
+            echo "$TIME: <INFO> syno_plugin is already running" >> $LBPLOG/$PLUGINDIR/synology.log
             exit 1
         fi
     ;;
     stop)
         if [ $is_running = 1 ]; then
-            $stop &
-            rm /tmp/syno_plugin.lock
-            /usr/bin/logger "<INFO> syno_plugin was stopped..."
+            kill -9 $PID
+            if [ -a /tmp/syno_plugin.lock ]; then rm /tmp/syno_plugin.lock; fi
+            echo "$TIME: <INFO> syno_plugin pid: \"$PID\" was stopped..." >> $LBPLOG/$PLUGINDIR/synology.log
             exit 0
         else
-            /usr/bin/logger "<INFO> syno_plugin is not running"
+            echo "$TIME: <INFO> syno_plugin is not running" >> $LBPLOG/$PLUGINDIR/synology.log
             exit 1
         fi
     ;;
     restart)
         if [ $is_running = 1 ]; then
-            $stop &
-            rm /tmp/syno_plugin.lock
-            /usr/bin/logger "<INFO> syno_plugin was stopped..."
-            #sleep 3
+            kill -9 $PID
+            if [ -a /tmp/syno_plugin.lock ]; then rm /tmp/syno_plugin.lock; fi
+            echo "$TIME: <INFO> syno_plugin pid: \"$PID\" was stopped..." >> $LBPLOG/$PLUGINDIR/synology.log
+            sleep 3
             $start &
             get_pid
         else
@@ -79,10 +75,10 @@ case "$1" in
     ;;
     status)
         if [ $is_running = 1 ]; then
-            echo "<INFO> syno_plugin is running..."
+            echo "$TIME: <INFO> syno_plugin is running..."
             exit 0
         else
-            echo "<INFO> syno_plugin is stopped..."
+            echo "$TIME: <INFO> syno_plugin is stopped..."
             exit 0
         fi
     ;;
