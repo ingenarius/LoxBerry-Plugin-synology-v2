@@ -59,11 +59,11 @@ echo "<INFO> Plugin BIN folder is: $PBIN"
 
 # install telegram library for python
 echo "<INFO> installing \"python-telegram-bot 12.3.0\" for python2..."
-/usr/bin/python2 -m pip install --user --upgrade pip
+pip2 install --user --upgrade pip
 pip2 install --user python-telegram-bot==12.3.0 
 
 echo "<INFO> installing latest version of \"python-telegram-bot\" for python3..."
-/usr/bin/python3 -m pip install --user --upgrade pip
+pip3 install --user --upgrade pip
 pip3 install --user --upgrade python-telegram-bot
 
 echo "<INFO> start syno_plugin..."

@@ -6,7 +6,7 @@
 # userfiles from /tmp back to the system. Use with caution and remember, that
 # all systems may be different!
 #
-# Exit code must be 0 if executed successfull. 
+# Exit code must be 0 if executed successfull.
 # Exit code 1 gives a warning but continues installation.
 # Exit code 2 cancels installation.
 #
@@ -66,18 +66,18 @@ rm -r /tmp/uploads/$PTEMPDIR\_upgrade
 
 # install telegram library for python
 echo "<INFO> installing \"python-telegram-bot 12.3.0\" for python2..."
-/usr/bin/python2 -m pip install --user --upgrade pip
-pip2 install --user python-telegram-bot==12.3.0 
+pip2 install --user --upgrade pip
+pip2 install --user python-telegram-bot==12.3.0
 
 echo "<INFO> installing latest version of \"python-telegram-bot\" for python3..."
-/usr/bin/python3 -m pip install --user --upgrade pip
+pip3 install --user --upgrade pip
 pip3 install --user --upgrade python-telegram-bot
 
 echo "<INFO> start syno_plugin..."
 $LBHOMEDIR/system/daemons/plugins/$PDIR start
 
 echo "<INFO> get cam IDs..."
-python $PBIN/cameras.py
+python3 $PBIN/cameras.py
 
 # Exit with Status 0
 exit 0
