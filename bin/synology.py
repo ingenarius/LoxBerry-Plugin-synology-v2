@@ -13,7 +13,7 @@ except:
 
 
 class DiskStation(object):
-    def __init__(self):
+    def __init__(self, LOGLEVEL="loglevel.INFO"):
         """Creates an object for a Synology DiskStation using the official Web API v2.0.
         #######################################################
         #     Synology DISK STATION
@@ -26,7 +26,7 @@ class DiskStation(object):
         self.lbplog = os.environ['LBPLOG'] + "/synology/synology.log"
         self.lbpconfig = os.environ['LBPCONFIG'] + "/synology/plugin.cfg"
         self.lbpsnapshot = os.environ['LBPDATA'] + "/synology/snapshot.jpg"
-        logging.basicConfig(filename=self.lbplog,level=logging.INFO,format='%(asctime)s: %(message)s ')
+        logging.basicConfig(filename=self.lbplog,level=LOGLEVEL,format='%(asctime)s: %(message)s ')
 
         # try to parse config file and get varibles out
         try:

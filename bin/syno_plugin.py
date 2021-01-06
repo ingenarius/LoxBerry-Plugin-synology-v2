@@ -33,26 +33,34 @@ def main():
         cfg.read(lbpconfig)
         global_cfg.read(lbsconfig)
     except:
-        msg = "<ERROR> Error parsing config files..." 
-        logging.info(msg)
+        msg = "<ERROR> Error parsing config files..."
+        logging.error(msg)
+
+    # set logging level as in config file specified
+    LOGLEVEL = "loglevel." + str(cfg.get("SERVER", "LOGLEVEL"))
+    logging.basicConfig(filename=lbplog,level=LOGLEVEL,format='%(asctime)s: %(message)s ')
 
     # define UDP server
-    UDP_IP = global_cfg.get("NETWORK", "IPADDRESS")
+    UDP_IP = "0.0.0.0"
     UDP_PORT = int(cfg.get("SERVER", "PORT"))
     try:
         # start the server listening on UDP socket
         sock = socket.socket( socket.AF_INET, socket.SOCK_DGRAM )
         sock.bind( (UDP_IP,UDP_PORT) )
+        logging.debug("<DEBUG> socket established: \"%s:%s\"" % (UDP_IP, UDP_PORT))
     except:
-        logging.info("<ERROR> failed to bind socket!")
-        
+        logging.error("<ERROR> failed to bind socket!")
+
     # initialise variable(s)
     result = False
     CIDS = cfg.get("DISKSTATION", "CIDS")
     try:
         SENT_VIA = int(cfg.get("DISKSTATION", "SENT_VIA"))
+        NROFPICS = int(cfg.get("DISKSTATION", "NROFPICS"))
+        pic_calc = NROFPICS + 1
     except:
         SENT_VIA = 0
+        pic_calc = 4
     MINISERVER = global_cfg.get("MINISERVER1", "IPADDRESS")
     logging.info("<INFO> loading configuration...")
 
@@ -66,17 +74,17 @@ def main():
             cam_id = 0
 
         if ( str(data).__contains__("TestMail") ):
-            email = Email()
+            email = Email(LOGLEVEL)
             response = email.SendMsg("Test from Loxberry", "This message was sent sucessfully from your Loxberry! \nHave fun :-) ")
             if response == True:
                 logging.info("<INFO> successful executed \"%s\" " % data)
             else:
-                logging.info("<ERROR> %s not executed" % data)
+                logging.error("<ERROR> %s not executed" % data)
             continue
-        
+
         if (addr[0] == MINISERVER or addr[0] == "127.0.0.1"):     # only the miniserver and loxberry are allowed to send commands
             # create DS object and login
-            ds = DiskStation()
+            ds = DiskStation(LOGLEVEL)
             s = ds.Login()
             # on login error the answer will be "False"
             if ( s == False ):
@@ -105,7 +113,7 @@ def main():
             # request does not match
             elif ( str(data).__contains__("Snapshot:") ):
                 logging.info("<INFO> executing \"%s\"..." % data)
-                for i in range(1, 4):
+                for i in range(1, pic_calc):
                     response = ds.GetSnapshot(cam_id)
                     if response == True and SENT_VIA != 0:
                         response = ds.SendSnapshot(SENT_VIA)	# send snapshot via: 1 - Telegram bot, 2 - Email
@@ -118,7 +126,7 @@ def main():
             if response == True:
                 logging.info("<INFO> successful executed \"%s\" " % data)
             else:
-                logging.info("<ERROR> \"%s\" not executed" % data)
+                logging.error("<ERROR> \"%s\" not executed" % data)
             # logout from Diskstation
             ds.Logout()
         else:

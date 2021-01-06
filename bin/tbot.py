@@ -8,7 +8,7 @@ except:
     from configparser import ConfigParser
 
 class MyTelegramBot(object):
-    def __init__(self):
+    def __init__(self, LOGLEVEL="loglevel.INFO"):
         """Creates an object for a Telegram Bot using the official Web API (2017)
         #######################################################
         #     TELEGRAM Bot
@@ -19,7 +19,7 @@ class MyTelegramBot(object):
         """
         # create logging instance
         lbplog = os.environ['LBPLOG'] + "/synology/synology.log"
-        logging.basicConfig(filename=lbplog,level=logging.INFO,format='%(asctime)s: %(message)s ')
+        logging.basicConfig(filename=lbplog,level=LOGLEVEL,format='%(asctime)s: %(message)s ')
         # create file strings from os environment variables
         lbpconfig = os.environ['LBPCONFIG'] + "/synology/plugin.cfg"
         # create config object to the the telegram bot details

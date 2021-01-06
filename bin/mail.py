@@ -24,7 +24,7 @@ except:
     from email import encoders as Encoders
 
 class Email(object):
-    def __init__(self):
+    def __init__(self, LOGLEVEL="loglevel.INFO"):
         """Creates an object for an Email smtp connection. These methods are implemented:
         SendMsg(subject, body)
         SendAttachment(subject, body, file)"""
@@ -33,7 +33,7 @@ class Email(object):
         lbplog = os.environ['LBPLOG'] + "/synology/synology.log"
         lbpconfig = os.environ['LBPCONFIG'] + "/synology/plugin.cfg"
 
-        logging.basicConfig(filename=lbplog,level=logging.INFO,format='%(asctime)s: %(message)s ')
+        logging.basicConfig(filename=lbplog,level=LOGLEVEL,format='%(asctime)s: %(message)s ')
         cfg = ConfigParser()
         cfg.read(lbpconfig)
         self.email_user = cfg.get("EMAIL", "USER")
