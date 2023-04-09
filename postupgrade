@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Bash script which is executed in case of an update (if this plugin is already
 # installed on the system). This script is executed as very last step (*AFTER*
