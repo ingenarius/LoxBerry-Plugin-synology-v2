@@ -58,9 +58,9 @@ echo "<INFO> Plugin SBIN folder is: $PSBIN"
 echo "<INFO> Plugin BIN folder is: $PBIN"
 
 # install telegram library for python
-echo "<INFO> installing \"python-telegram-bot 12.3.0\" for python2..."
-python2 -m pip install --upgrade --user pip
-python2 -m pip install --upgrade --user python-telegram-bot==12.3.0
+#echo "<INFO> installing \"python-telegram-bot 12.3.0\" for python2..."
+#python2 -m pip install --upgrade --user pip
+#python2 -m pip install --upgrade --user python-telegram-bot==12.3.0
 
 echo "<INFO> installing latest version of \"python-telegram-bot\" for python3..."
 python3 -m pip install --upgrade --user pip
