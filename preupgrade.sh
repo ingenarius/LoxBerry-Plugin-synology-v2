@@ -74,8 +74,8 @@ $LBHOMEDIR/system/daemons/plugins/$PSHNAME stop
 
 # upgrade pip for python
 echo "<INFO> upgrading pip for python..."
-pip2 install --user --upgrade pip
-pip3 install --user --upgrade pip
+#pip2 install --user --upgrade pip
+python3 -m pip install --upgrade --user pip
 
 # Exit with Status 0
 exit 0
